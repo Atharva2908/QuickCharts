@@ -7,6 +7,8 @@ from io import BytesIO
 import logging
 from typing import Optional, Dict, List, Any
 from datetime import datetime
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 import json
 from pathlib import Path
 import os
@@ -314,6 +316,38 @@ async def get_sample_data():
     
     result = DataAnalyzer.prepare_for_frontend(sample_df, "sample_data.csv")
     return result
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_404_handler(request, exc):
+    """Custom 404 handler for better UX"""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "detail": "Endpoint not found",
+            "available": {
+                "health": "/health", 
+                "upload": "/api/upload",
+                "sample": "/api/sample-data",
+                "docs": "/docs"
+            },
+            "error": "Check the URL and HTTP method"
+        }
+    )
+
+@app.get("/")
+async def root():
+    """Root endpoint - API landing page"""
+    return {
+        "message": "QuickCharts Data Analysis API ✅",
+        "version": "1.0.0",
+        "endpoints": {
+            "health": "/health",
+            "upload": "/api/upload (POST CSV/Excel)",
+            "sample": "/api/sample-data",
+            "docs": "/docs" 
+        },
+        "status": "healthy - ready for uploads!"
+    }
 
 if __name__ == "__main__":
     import uvicorn
