@@ -29,14 +29,20 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# ✅ CORS middleware - FIRST after app creation (CRITICAL!)
+# ✅ FULL CORS - Deploy immediately
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000","https://quick-charts-one.vercel.app/"],
+    allow_origins=[
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000",
+        "https://quick-charts-one.vercel.app",
+        "*"  # ← TEMPORARY - allows ALL origins during testing
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
     allow_headers=["*"],
 )
+
 
 # Startup and shutdown events
 @app.on_event("startup")
