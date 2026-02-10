@@ -8,6 +8,7 @@ import { Upload, FileUp, AlertCircle, Loader2, BarChart3 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Progress } from '@/components/ui/progress'
 import axios from 'axios'
+import { API_BASE_URL } from '@/lib/constants'  // ✅ BACKEND URL IMPORT
 
 interface FileUploadProps {
   onDataUpload: (data: any, fileName: string) => void
@@ -81,8 +82,9 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
       const formData = new FormData()
       formData.append('file', file)
 
+      // ✅ CONNECTED TO DEPLOYED RENDER BACKEND
       const response = await axios.post(
-        'http://localhost:8000/api/upload',
+        `${API_BASE_URL}/api/upload`,  // ← FIXED: Uses Render backend
         formData,
         {
           timeout: 60000,
@@ -180,7 +182,7 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
             <div className="space-y-3">
               <h3 className="text-3xl font-bold text-foreground">
                 {isLoading ? '🔄 Processing Your Data...' : 
-                 isDragging ? '🚀 Drop to Upload!' : 'Drop your file here or click below'}
+                   isDragging ? '🚀 Drop to Upload!' : 'Drop your file here or click below'}
               </h3>
               <p className="text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
                 {isLoading 
