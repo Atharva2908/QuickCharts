@@ -11,7 +11,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { BarChart3, AlertCircle, TrendingUp } from 'lucide-react'
+import { API_BASE_URL } from '@/lib/constants'
+import { BarChart3, AlertCircle, TrendingUp, LineChart, ChartScatter, BarChart2 } from 'lucide-react'
 
 interface VisualizationControlProps {
   columns: string[]
@@ -56,6 +57,55 @@ export default function VisualizationControl({
     })
   }, [columns, analysis])
 
+  // LIVE QuickChart preview URL - MINIMAL CHANGE
+  const previewChartUrl = useMemo(() => {
+    if (!xColumn || !yColumn) return null
+
+    const baseConfig = {
+      type: chartType === 'scatter' ? 'scatter' : chartType,
+      data: {
+        labels: ['Sample 1', 'Sample 2', 'Sample 3', 'Sample 4', 'Sample 5']
+      },
+      options: {
+        responsive: true,
+        backgroundColor: '#FFFFFF',
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true } }
+      }
+    }
+
+    // Simple dataset based on chart type
+    if (chartType === 'bar') {
+      baseConfig.data.datasets = [{
+        label: `${yColumn}`,
+        data: [12, 19, 3, 5, 2],
+        backgroundColor: '#3b82f6'
+      }]
+    } else if (chartType === 'line') {
+      baseConfig.data.datasets = [{
+        label: `${yColumn}`,
+        data: [10, 20, 15, 35, 25],
+        borderColor: '#10b981',
+        fill: false
+      }]
+    } else if (chartType === 'scatter') {
+      delete baseConfig.data.labels
+      baseConfig.data.datasets = [{
+        label: `${yColumn}`,
+        data: [{x: 1, y: 2}, {x: 2, y: 4}, {x: 3, y: 3}, {x: 4, y: 5}, {x: 5, y: 6}],
+        backgroundColor: '#ef4444'
+      }]
+    } else if (chartType === 'histogram') {
+      baseConfig.data.datasets = [{
+        label: `${xColumn}`,
+        data: [12, 25, 18, 8, 15],
+        backgroundColor: '#f59e0b'
+      }]
+    }
+
+    return `${API_BASE_URL}/chart?c=${encodeURIComponent(JSON.stringify(baseConfig))}&w=400&h=300&f=png`
+  }, [chartType, xColumn, yColumn])
+
   // Validate chart type compatibility
   const validateChartType = (type: ChartType, xCol: string, yCol: string): ChartCompatibility => {
     const xAnalysis = analysis[xCol]
@@ -65,10 +115,7 @@ export default function VisualizationControl({
 
     switch (type) {
       case 'bar':
-        return {
-          compatible: true,
-          reason: 'Works with any column types',
-        }
+        return { compatible: true, reason: 'Works with any column types' }
       case 'line':
         if (!yIsNumeric) {
           return {
@@ -115,6 +162,21 @@ export default function VisualizationControl({
         </h3>
       </div>
 
+      {/* LIVE Preview - NEW */}
+      {previewChartUrl && (
+        <div className="space-y-3">
+          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Live Preview</label>
+          <div className="border border-border/50 rounded-lg overflow-hidden bg-background/50 h-48 flex items-center justify-center">
+            <img 
+              src={previewChartUrl} 
+              alt="Live preview" 
+              className="w-full h-full object-contain rounded"
+              onError={(e) => e.currentTarget.style.display = 'none'}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Chart Type Selector */}
       <div className="space-y-3">
         <label className="text-sm font-medium text-foreground">Chart Type</label>
@@ -123,10 +185,10 @@ export default function VisualizationControl({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="bar">Bar Chart</SelectItem>
-            <SelectItem value="line">Line Chart</SelectItem>
-            <SelectItem value="scatter">Scatter Plot</SelectItem>
-            <SelectItem value="histogram">Histogram</SelectItem>
+            <SelectItem value="bar">📊 Bar Chart</SelectItem>
+            <SelectItem value="line">📈 Line Chart</SelectItem>
+            <SelectItem value="scatter">🔗 Scatter Plot</SelectItem>
+            <SelectItem value="histogram">📉 Histogram</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -178,20 +240,15 @@ export default function VisualizationControl({
       )}
 
       {/* Recommendations */}
-      {chartCompatibility.compatible && (
+      {chartCompatibility.compatible && previewChartUrl && (
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-2">
           <div className="flex items-start gap-2">
             <TrendingUp className="w-4 h-4 text-primary mt-1" />
             <div className="text-sm space-y-1">
               <p className="font-medium text-foreground">Chart Configuration</p>
               <ul className="text-muted-foreground text-xs space-y-1">
-                {numericColumns.length > 0 && chartType === 'scatter' && (
-                  <li>✓ Numeric columns detected for scatter plot</li>
-                )}
-                {categoricalColumns.length > 0 && chartType === 'bar' && (
-                  <li>✓ Categorical columns available for grouping</li>
-                )}
-                <li>✓ Ready to visualize</li>
+                <li>✓ Live preview connected via QuickChart API</li>
+                <li>✓ Ready to generate full visualization</li>
               </ul>
             </div>
           </div>

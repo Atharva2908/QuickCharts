@@ -4,8 +4,9 @@ import React, { useRef } from "react"
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Upload, FileUp, AlertCircle, Loader2 } from 'lucide-react'
+import { Upload, FileUp, AlertCircle, Loader2, BarChart3 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Progress } from '@/components/ui/progress'
 import axios from 'axios'
 
 interface FileUploadProps {
@@ -18,6 +19,25 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
   const [error, setError] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Processing pipeline visualization
+  const pipelineChartConfig = {
+    type: 'bar',
+    data: {
+      labels: ['Upload', 'Parse', 'Analyze', 'Visualize'],
+      datasets: [{
+        label: 'Pipeline',
+        data: [25, 50, 75, 100],
+        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: { x: { display: false }, y: { ticks: { font: { size: 11 } } } }
+    }
+  }
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -40,11 +60,11 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
     const isValidSize = file.size <= maxSize
 
     if (!isValidType) {
-      setError('Invalid file type. Please upload a CSV or Excel file.')
+      setError('Invalid file type. Please upload CSV, XLSX, or XLS files only.')
       return false
     }
     if (!isValidSize) {
-      setError('File size exceeds 100MB limit.')
+      setError('File size exceeds 100MB limit. Please choose a smaller file.')
       return false
     }
     return true
@@ -65,15 +85,13 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
         'http://localhost:8000/api/upload',
         formData,
         {
-          // ✅ REMOVED Content-Type header - axios auto-sets for FormData
-          timeout: 60000, // 60s timeout
+          timeout: 60000,
           onUploadProgress: (progressEvent) => {
             if (progressEvent.total) {
               const percentComplete = Math.round(
                 (progressEvent.loaded * 100) / progressEvent.total
               )
               setProgress(percentComplete)
-              console.log(`Upload progress: ${percentComplete}%`)
             }
           },
         }
@@ -83,8 +101,9 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
     } catch (err: any) {
       console.error('Upload error:', err)
       const errorMessage = err.response?.data?.detail || 
+                          err.response?.data?.error || 
                           err.message || 
-                          'Failed to process file. Please try again.'
+                          'Failed to process file. Please check server and try again.'
       setError(errorMessage)
     } finally {
       setIsLoading(false)
@@ -107,7 +126,6 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
     const files = e.target.files
     if (files && files.length > 0) {
       processFile(files[0])
-      // Reset input to allow same file re-upload
       e.target.value = ''
     }
   }
@@ -117,139 +135,135 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-4xl mx-auto">
       {/* Hero Section */}
-      <div className="text-center space-y-4 mb-12">
-        <h2 className="text-4xl font-bold text-foreground">
-          Transform Your Data Into Insights
-        </h2>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Upload your CSV or Excel file and instantly get interactive visualizations, 
-          data analysis, and AI-generated insights without any technical expertise.
+      <div className="text-center space-y-6">
+        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-primary/20 to-secondary/20 px-6 py-3 rounded-full">
+          <BarChart3 className="w-8 h-8 text-primary" />
+          <h2 className="text-4xl font-black bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+            Transform Data Into Insights
+          </h2>
+        </div>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          Drag & drop your CSV/Excel file to instantly unlock interactive charts, 
+          automated analysis, and AI-powered insights. No setup required.
         </p>
       </div>
 
       {/* Upload Card */}
       <Card 
-        className={`border-2 border-dashed transition-all duration-200 p-0.5 hover:shadow-lg ${
+        className={`relative border-2 border-dashed transition-all duration-300 p-1 hover:shadow-2xl hover:scale-[1.02] ${
           isDragging 
-            ? 'border-primary bg-primary/10 ring-2 ring-primary/20' 
-            : 'border-border/40 hover:border-primary/50'
+            ? 'border-primary bg-gradient-to-br from-primary/10 to-primary/5 ring-4 ring-primary/30 shadow-2xl' 
+            : 'border-border/30 hover:border-primary/60 bg-gradient-to-br from-background/50'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <div className="p-12">
-          <div className="flex flex-col items-center justify-center space-y-6">
-            <div className={`p-4 rounded-full transition-all ${
-              isLoading ? 'bg-primary/20' : 'bg-primary/10'
+        <div className="p-12 relative z-10">
+          <div className="flex flex-col items-center justify-center space-y-8 text-center">
+            {/* Animated Icon */}
+            <div className={`p-6 rounded-2xl transition-all duration-500 ${
+              isDragging ? 'bg-primary/20 scale-110' : 'bg-primary/10 hover:scale-105'
             }`}>
               {isLoading ? (
-                <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                <Loader2 className="w-16 h-16 text-primary animate-spin" />
+              ) : isDragging ? (
+                <FileUp className="w-16 h-16 text-primary" />
               ) : (
-                <Upload className="w-12 h-12 text-primary" />
+                <Upload className="w-16 h-16 text-primary group-hover:scale-110 transition-transform duration-200" />
               )}
             </div>
 
-            <div className="text-center space-y-2">
-              <h3 className="text-2xl font-semibold text-foreground">
-                {isLoading ? 'Processing Your File...' : 'Drop your file here'}
+            {/* Status Text */}
+            <div className="space-y-3">
+              <h3 className="text-3xl font-bold text-foreground">
+                {isLoading ? '🔄 Processing Your Data...' : 
+                 isDragging ? '🚀 Drop to Upload!' : 'Drop your file here or click below'}
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
                 {isLoading 
-                  ? 'Analyzing data and generating visualizations...' 
-                  : 'or click below to select a CSV or Excel file (max 100MB)'
+                  ? 'Analyzing structure → Detecting patterns → Generating visualizations...' 
+                  : 'Supports CSV, XLSX, XLS files • Maximum 100MB • Instant analysis'
                 }
               </p>
             </div>
 
+            {/* Action Button */}
             {!isLoading && (
-              <>
-                <Button 
-                  onClick={handleSelectFileClick}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-8"
-                  disabled={isLoading}
-                  size="lg"
-                >
-                  <FileUp className="w-5 h-5 mr-2" />
-                  Select File
-                </Button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".csv,.xlsx,.xls"
-                  onChange={handleFileInput}
-                  className="sr-only"
-                  disabled={isLoading}
-                />
-              </>
+              <Button 
+                onClick={handleSelectFileClick}
+                className="group bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground px-10 py-7 text-lg font-semibold shadow-xl hover:shadow-2xl h-auto rounded-2xl transition-all duration-300 transform hover:-translate-y-1"
+                disabled={isLoading}
+                size="lg"
+              >
+                <FileUp className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-200" />
+                Choose File
+              </Button>
             )}
 
-            {/* Progress Bar */}
+            {/* Hidden File Input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,.xlsx,.xls"
+              onChange={handleFileInput}
+              className="sr-only"
+              disabled={isLoading}
+            />
+
+            {/* Enhanced Progress */}
             {isLoading && progress > 0 && (
-              <div className="w-full max-w-md">
-                <div className="flex justify-between text-sm text-muted-foreground mb-2">
-                  <span>Upload Progress</span>
-                  <span>{progress}%</span>
+              <div className="w-full max-w-lg bg-background/80 backdrop-blur-sm p-6 rounded-2xl border border-border/30 shadow-xl">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-lg font-semibold text-foreground">Processing Pipeline</span>
+                  <span className="text-2xl font-bold text-primary">{progress}%</span>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div 
-                    className="bg-primary h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
+                <Progress 
+                  value={progress} 
+                  className="h-3 [&>div]:bg-gradient-to-r [&>div]:from-primary to-secondary rounded-full shadow-inner"
+                />
+                <p className="text-sm text-muted-foreground mt-3 text-center">
+                  {progress < 30 ? 'Uploading file...' : 
+                   progress < 70 ? 'Parsing data...' : 
+                   'Generating visualizations...'}
+                </p>
               </div>
             )}
           </div>
         </div>
       </Card>
 
-      {/* Error Message */}
+      {/* Error Alert */}
       {error && (
-        <Alert className="border-destructive bg-destructive/5">
-          <AlertCircle className="h-4 w-4 text-destructive" />
-          <AlertDescription>{error}</AlertDescription>
+        <Alert className="border-destructive/50 bg-destructive/5 border-l-4">
+          <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+          <AlertDescription className="font-medium text-destructive/90">
+            {error}
+          </AlertDescription>
         </Alert>
       )}
 
       {/* Features Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-        <Card className="border-border/40 p-6 hover:shadow-md transition-shadow">
-          <div className="flex flex-col items-center text-center space-y-3">
-            <div className="bg-primary/10 p-3 rounded-lg">
-              <FileUp className="w-6 h-6 text-primary" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12">
+        {[
+          { icon: FileUp, title: 'Lightning Upload', desc: 'Drag & drop or click. Supports CSV/Excel up to 100MB instantly.' },
+          { icon: BarChart3, title: 'Auto Analysis', desc: 'Smart data detection, quality checks, and visualization generation.' },
+          { icon: Upload, title: 'AI Insights', desc: 'Automated pattern detection and actionable recommendations.' }
+        ].map(({ icon: Icon, title, desc }, idx) => (
+          <Card key={idx} className="border-border/40 bg-gradient-to-b from-card p-8 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group border-0 bg-card/80 backdrop-blur-sm">
+            <div className="flex flex-col items-center text-center h-full">
+              <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 p-5 rounded-2xl mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                <Icon className="w-10 h-10 text-primary group-hover:scale-110 transition-transform" />
+              </div>
+              <h4 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
+                {title}
+              </h4>
+              <p className="text-muted-foreground leading-relaxed">{desc}</p>
             </div>
-            <h4 className="font-semibold text-foreground">Easy Upload</h4>
-            <p className="text-sm text-muted-foreground">
-              Support for CSV and Excel files up to 100MB. Drag & drop or click to upload.
-            </p>
-          </div>
-        </Card>
-
-        <Card className="border-border/40 p-6 hover:shadow-md transition-shadow">
-          <div className="flex flex-col items-center text-center space-y-3">
-            <div className="bg-primary/10 p-3 rounded-lg">
-              <Upload className="w-6 h-6 text-primary" />
-            </div>
-            <h4 className="font-semibold text-foreground">Auto Analysis</h4>
-            <p className="text-sm text-muted-foreground">
-              Automatic data type detection, missing values analysis, and quality assessment.
-            </p>
-          </div>
-        </Card>
-
-        <Card className="border-border/40 p-6 hover:shadow-md transition-shadow">
-          <div className="flex flex-col items-center text-center space-y-3">
-            <div className="bg-primary/10 p-3 rounded-lg">
-              <Upload className="w-6 h-6 text-primary" />
-            </div>
-            <h4 className="font-semibold text-foreground">Smart Insights</h4>
-            <p className="text-sm text-muted-foreground">
-              AI-generated insights, trends, and recommendations in simple language.
-            </p>
-          </div>
-        </Card>
+          </Card>
+        ))}
       </div>
     </div>
   )
