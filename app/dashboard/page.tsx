@@ -45,8 +45,9 @@ export default function DashboardPage() {
 
   const fetchRecentUploads = async (token?: string) => {
     try {
-      // NOTE: Normally pass token here for secure fetching
-      const response = await axios.get(`${API_BASE_URL}/api/uploads`)
+      const response = await axios.get(`${API_BASE_URL}/api/uploads`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       if (response.data && response.data.uploads) {
         setRecentUploads(response.data.uploads)
       }
@@ -59,8 +60,11 @@ export default function DashboardPage() {
 
   const loadPreviousFile = async (uploadId: string, name: string) => {
     setIsLoadingFile(true)
+    const token = localStorage.getItem('quickcharts_token')
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/uploads/${uploadId}`)
+      const response = await axios.get(`${API_BASE_URL}/api/uploads/${uploadId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       setUploadedData(response.data)
       setFileName(name)
     } catch (e) {

@@ -154,6 +154,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: MongoDB = De
         raise credentials_exception
         
     # Cast ObjectId back to string so frontend can use it if needed
+    user["id"] = str(user["_id"])
     user["_id"] = str(user["_id"])
     return user
 

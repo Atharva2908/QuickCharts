@@ -155,7 +155,8 @@ app.add_middleware(
 )
 
 # Include Auth Router
-from auth import router as auth_router
+from auth import router as auth_router, get_current_user
+from fastapi import Depends
 app.include_router(auth_router)
 
 
@@ -551,7 +552,7 @@ async def get_chart(c: str, w: int = 500, h: int = 300, f: str = 'png', v: Optio
         raise HTTPException(status_code=500, detail=f"Chart generation error: {str(e)}")
 
 @app.post("/api/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
     """
     Upload and analyze data file
     
@@ -588,7 +589,7 @@ async def upload_file(file: UploadFile = File(...)):
             db = await get_db()
             upload_id = await db.save_upload(
                 filename=file.filename,
-                user_id="local_user",
+                user_id=current_user["id"],
                 file_size=file.size or 0,
                 metadata={
                     'rows': len(df),
@@ -601,7 +602,7 @@ async def upload_file(file: UploadFile = File(...)):
             df.to_csv(file_path, index=False)
             
             # Save analysis results
-            analysis_id = await db.save_analysis(upload_id, result, user_id="local_user")
+            analysis_id = await db.save_analysis(upload_id, result, user_id=current_user["id"])
             result['_id'] = str(analysis_id)
             result['upload_id'] = str(upload_id)  # Pass back to frontend
             
@@ -619,11 +620,11 @@ async def upload_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
 
 @app.get("/api/uploads")
-async def get_recent_uploads():
+async def get_recent_uploads(current_user: dict = Depends(get_current_user)):
     """Get recent file uploads for the user (Option 2)"""
     try:
         db = await get_db()
-        uploads = await db.get_user_uploads(user_id="local_user", limit=10)
+        uploads = await db.get_user_uploads(user_id=current_user["id"], limit=10)
         for u in uploads:
             u["_id"] = str(u["_id"])
         return {"uploads": uploads}
@@ -632,12 +633,12 @@ async def get_recent_uploads():
         return {"uploads": [], "error": str(e)}
 
 @app.get("/api/uploads/{upload_id}")
-async def get_upload_data(upload_id: str):
+async def get_upload_data(upload_id: str, current_user: dict = Depends(get_current_user)):
     """Retrieve existing data without re-uploading (Option 2)"""
     try:
         db = await get_db()
         upload = await db.get_upload(upload_id)
-        if not upload:
+        if not upload or upload.get("user_id") != current_user["id"]:
             raise HTTPException(status_code=404, detail="Upload not found")
         
         file_path = UPLOAD_DIR / f"{upload_id}.csv"
@@ -655,9 +656,14 @@ async def get_upload_data(upload_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/clean/{upload_id}")
-async def clean_data(upload_id: str, request: CleanRequest):
+async def clean_data(upload_id: str, request: CleanRequest, current_user: dict = Depends(get_current_user)):
     """Interactively Clean Data (Option 3)"""
     try:
+        db = await get_db()
+        upload = await db.get_upload(upload_id)
+        if not upload or upload.get("user_id") != current_user["id"]:
+            raise HTTPException(status_code=404, detail="Upload not found")
+            
         file_path = UPLOAD_DIR / f"{upload_id}.csv"
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="Data file not found")
@@ -688,9 +694,7 @@ async def clean_data(upload_id: str, request: CleanRequest):
         # Save modifications permanently back to disk
         df.to_csv(file_path, index=False)
         
-        db = await get_db()
-        upload = await db.get_upload(upload_id)
-        filename = upload["filename"] if upload else f"cleaned_data_{upload_id[:5]}.csv"
+        filename = upload["filename"]
         
         # Re-analyze newly cleaned data, return new results
         result = DataAnalyzer.prepare_for_frontend(df, filename)
@@ -702,9 +706,14 @@ async def clean_data(upload_id: str, request: CleanRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/calculate/{upload_id}")
-async def calculate_data(upload_id: str, request: CalculateRequest):
+async def calculate_data(upload_id: str, request: CalculateRequest, current_user: dict = Depends(get_current_user)):
     """Create a new column based on an expression (Advanced Module)"""
     try:
+        db = await get_db()
+        upload = await db.get_upload(upload_id)
+        if not upload or upload.get("user_id") != current_user["id"]:
+            raise HTTPException(status_code=404, detail="Upload not found")
+
         file_path = UPLOAD_DIR / f"{upload_id}.csv"
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="Data file not found")
@@ -738,9 +747,7 @@ async def calculate_data(upload_id: str, request: CalculateRequest):
         # Save modifications
         df.to_csv(file_path, index=False)
         
-        db = await get_db()
-        upload = await db.get_upload(upload_id)
-        filename = upload["filename"] if upload else f"calculated_{upload_id[:5]}.csv"
+        filename = upload["filename"]
         
         result = DataAnalyzer.prepare_for_frontend(df, filename)
         result["upload_id"] = upload_id
@@ -752,9 +759,14 @@ async def calculate_data(upload_id: str, request: CalculateRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/cast/{upload_id}")
-async def cast_data(upload_id: str, request: CastRequest):
+async def cast_data(upload_id: str, request: CastRequest, current_user: dict = Depends(get_current_user)):
     """Change data type of a column (Advanced Module)"""
     try:
+        db = await get_db()
+        upload = await db.get_upload(upload_id)
+        if not upload or upload.get("user_id") != current_user["id"]:
+            raise HTTPException(status_code=404, detail="Upload not found")
+
         file_path = UPLOAD_DIR / f"{upload_id}.csv"
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="Data file not found")
@@ -777,9 +789,7 @@ async def cast_data(upload_id: str, request: CastRequest):
             raise HTTPException(status_code=400, detail=f"Casting error: {str(e)}")
             
         df.to_csv(file_path, index=False)
-        db = await get_db()
-        upload = await db.get_upload(upload_id)
-        filename = upload["filename"] if upload else f"casted_{upload_id[:5]}.csv"
+        filename = upload["filename"]
         
         result = DataAnalyzer.prepare_for_frontend(df, filename)
         result["upload_id"] = upload_id
@@ -835,11 +845,15 @@ async def text_to_speech(text: str):
         raise HTTPException(status_code=500, detail=f"Unexpected error in TTS: {str(e)}")
 
 @app.get("/api/share/{upload_id}")
-async def create_share_link(upload_id: str):
+async def create_share_link(upload_id: str, current_user: dict = Depends(get_current_user)):
     """Create a public shareable link"""
     try:
-        db = await get_db()
-        share_id = await db.create_share_link(upload_id, user_id="local_user")
+        # Verify ownership before sharing
+        upload = await db.get_upload(upload_id)
+        if not upload or upload.get("user_id") != current_user["id"]:
+            raise HTTPException(status_code=404, detail="Upload not found")
+            
+        share_id = await db.create_share_link(upload_id, user_id=current_user["id"])
         return {"share_id": share_id, "public_url": f"/public/{share_id}"}
     except Exception as e:
         logger.error(f"Share error: {str(e)}")

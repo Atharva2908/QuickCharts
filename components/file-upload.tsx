@@ -82,12 +82,14 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
       const formData = new FormData()
       formData.append('file', file)
 
-      // ✅ CONNECTED TO DEPLOYED RENDER BACKEND
+      // ✅ AUTHENTICATED UPLOAD
+      const token = localStorage.getItem('quickcharts_token')
       const response = await axios.post(
-        `${API_BASE_URL}/api/upload`,  // ← FIXED: Uses Render backend
+        `${API_BASE_URL}/api/upload`,
         formData,
         {
           timeout: 60000,
+          headers: { Authorization: `Bearer ${token}` },
           onUploadProgress: (progressEvent) => {
             if (progressEvent.total) {
               const percentComplete = Math.round(
