@@ -160,8 +160,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: MongoDB = De
 
 @router.post("/register")
 async def register(user_data: UserRegister, db: MongoDB = Depends(get_db)):
-    # Check if user already exists
-    existing_user = await db.get_user_by_email(user_data.email)
+    # Check if user already exists (Case Insensitive)
+    email_lower = user_data.email.lower().strip()
+    existing_user = await db.get_user_by_email(email_lower)
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -171,7 +172,7 @@ async def register(user_data: UserRegister, db: MongoDB = Depends(get_db)):
     # Create new user
     hashed_password = get_password_hash(user_data.password)
     user_dict = {
-        "email": user_data.email,
+        "email": email_lower,
         "first_name": user_data.first_name,
         "last_name": user_data.last_name,
         "phone": user_data.phone,
@@ -237,7 +238,8 @@ async def google_login(data: GoogleLogin, db: MongoDB = Depends(get_db)):
 
 @router.post("/login")
 async def login(request: LoginRequest, db: MongoDB = Depends(get_db)):
-    user = await db.get_user_by_email(request.email)
+    email_lower = request.email.lower().strip()
+    user = await db.get_user_by_email(email_lower)
     if not user or not verify_password(request.password, user.get("hashed_password", "")):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
