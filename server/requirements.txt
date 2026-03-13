@@ -16,3 +16,5 @@ google-auth
 google-auth-oauthlib
 google-auth-httplib2
 numexpr
+requests==2.31.0
+httpx==0.25.1

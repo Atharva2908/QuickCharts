@@ -115,7 +115,12 @@ def generate_reset_token():
     return ''.join(random.choices(string.ascii_letters + string.digits, k=32))
 
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+    if not hashed_password:
+        return False
+    try:
+        return pwd_context.verify(plain_password, hashed_password)
+    except Exception:
+        return False
 
 def get_password_hash(password):
     return pwd_context.hash(password)
