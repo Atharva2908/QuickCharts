@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Download, FileJson, FileText, ImageIcon, FileImage } from 'lucide-react'
+import { Download, FileJson, FileText, ImageIcon, FileImage, Table, FileDigit, Image as ChartIcon } from 'lucide-react'
 import { API_BASE_URL } from '@/lib/constants'
+import * as XLSX from 'xlsx'
+import { jsPDF } from 'jspdf'
 
 interface ExportDownloadProps {
   data: any[]
@@ -47,7 +49,7 @@ export default function ExportDownload({ data, fileName, analysis }: ExportDownl
               const value = row[header]
               if (value === null || value === undefined) return ''
               if (typeof value === 'string' && value.includes(',')) return `"${value}"`
-              return value
+              return String(value)
             })
             .join(',')
         ),
@@ -64,6 +66,110 @@ export default function ExportDownload({ data, fileName, analysis }: ExportDownl
       document.body.removeChild(a)
     } catch (error) {
       console.error('[Export] CSV error:', error)
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const exportXLSX = () => {
+    setIsExporting(true)
+    try {
+      const ws = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "Cleaned Data")
+      
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${fileName.replace(/\.[^/.]+$/, '')}_cleaned.xlsx`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('[Export] XLSX error:', error)
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const exportChartImage = async (format: 'png' | 'jpeg') => {
+    setIsExporting(true)
+    try {
+      const response = await fetch(summaryChartUrl.replace('f=png', `f=${format}`))
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${fileName.replace(/\.[^/.]+$/, '')}_chart.${format}`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error(`[Export] ${format.toUpperCase()} error:`, error)
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const exportPDF = async () => {
+    setIsExporting(true)
+    try {
+      const doc = new jsPDF()
+      const title = `${fileName.replace(/\.[^/.]+$/, '')} - Analysis Report`
+      
+      doc.setFontSize(22)
+      doc.setTextColor(59, 130, 246)
+      doc.text("QuickCharts Data Report", 20, 20)
+      
+      doc.setFontSize(12)
+      doc.setTextColor(100, 100, 100)
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 20, 30)
+      doc.text(`File name: ${fileName}`, 20, 36)
+      doc.text(`Rows: ${data.length.toLocaleString()} | Columns: ${Object.keys(analysis).length}`, 20, 42)
+      
+      doc.line(20, 48, 190, 48)
+      
+      // Add summary chart
+      try {
+        const response = await fetch(summaryChartUrl)
+        const blob = await response.blob()
+        const reader = new FileReader()
+        const base64Data = await new Promise<string>((resolve) => {
+          reader.onloadend = () => resolve(reader.result as string)
+          reader.readAsDataURL(blob)
+        })
+        doc.addImage(base64Data, 'PNG', 20, 55, 170, 100)
+      } catch (e) {
+        doc.text("Chart could not be loaded", 20, 80)
+      }
+      
+      // Add column statistics summary table header
+      doc.addPage()
+      doc.setFontSize(16)
+      doc.setTextColor(0)
+      doc.text("Column Technical Summary", 20, 20)
+      
+      let y = 35
+      Object.entries(analysis).slice(0, 15).forEach(([col, info]: [string, any]) => {
+        if (y > 270) {
+          doc.addPage()
+          y = 20
+        }
+        doc.setFontSize(10)
+        doc.setFont("helvetica", "bold")
+        doc.text(col, 20, y)
+        doc.setFont("helvetica", "normal")
+        doc.text(`Type: ${info.dtype} | Missing: ${((info.missing_percent || 0) * 100).toFixed(1)}% | Unique: ${info.unique}`, 20, y + 5)
+        y += 15
+      })
+      
+      doc.save(`${fileName.replace(/\.[^/.]+$/, '')}_report.pdf`)
+    } catch (error) {
+      console.error('[Export] PDF error:', error)
     } finally {
       setIsExporting(false)
     }
@@ -209,7 +315,7 @@ export default function ExportDownload({ data, fileName, analysis }: ExportDownl
   }
 
   return (
-    <Card className="p-6 border-border/40 bg-gradient-to-br from-card/70 bg-card/50 backdrop-blur-sm">
+    <Card className="p-6 border border-gray-200 bg-white shadow-sm">
       <div className="space-y-6">
         {/* Header with Summary Chart */}
         <div className="space-y-3">
@@ -220,7 +326,7 @@ export default function ExportDownload({ data, fileName, analysis }: ExportDownl
               <p className="text-sm text-muted-foreground">Download data and reports in multiple formats</p>
             </div>
           </div>
-          
+
           {/* Summary Chart */}
           <div className="flex justify-center p-4 bg-background/50 rounded-xl border border-border/30">
             <img
@@ -232,46 +338,95 @@ export default function ExportDownload({ data, fileName, analysis }: ExportDownl
           </div>
         </div>
 
-        {/* Export Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <Button
             onClick={exportCSV}
             disabled={isExporting || data.length === 0}
-            className="group h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all"
+            className="group h-14 bg-white hover:bg-emerald-50 text-emerald-600 border-emerald-200 hover:border-emerald-500 shadow-sm transition-all rounded-xl"
+            variant="outline"
           >
-            <FileText className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
-            Clean CSV Data
-            <span className="ml-2 text-xs opacity-75">({data.length.toLocaleString()} rows)</span>
+            <div className="flex items-center gap-3">
+              <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <div className="text-left">
+                <div className="text-sm font-bold leading-none mb-1">Export CSV</div>
+                <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Cleaned Dataset</div>
+              </div>
+            </div>
+          </Button>
+
+          <Button
+            onClick={exportXLSX}
+            disabled={isExporting || data.length === 0}
+            className="group h-14 bg-white hover:bg-green-50 text-green-600 border-green-200 hover:border-green-500 shadow-sm transition-all rounded-xl"
+            variant="outline"
+          >
+            <div className="flex items-center gap-3">
+              <Table className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <div className="text-left">
+                <div className="text-sm font-bold leading-none mb-1">Export Excel</div>
+                <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">XLSX Format</div>
+              </div>
+            </div>
+          </Button>
+
+          <Button
+            onClick={exportPDF}
+            disabled={isExporting || data.length === 0}
+            className="group h-14 bg-white hover:bg-red-50 text-red-600 border-red-200 hover:border-red-500 shadow-sm transition-all rounded-xl"
+            variant="outline"
+          >
+            <div className="flex items-center gap-3">
+              <FileDigit className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <div className="text-left">
+                <div className="text-sm font-bold leading-none mb-1">PDF Report</div>
+                <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Summary & Charts</div>
+              </div>
+            </div>
+          </Button>
+
+          <Button
+            onClick={() => exportChartImage('png')}
+            disabled={isExporting || data.length === 0}
+            className="group h-14 bg-white hover:bg-purple-50 text-purple-600 border-purple-200 hover:border-purple-500 shadow-sm transition-all rounded-xl"
+            variant="outline"
+          >
+            <div className="flex items-center gap-3">
+              <ChartIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <div className="text-left">
+                <div className="text-sm font-bold leading-none mb-1">Summary PNG</div>
+                <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">High Resolution</div>
+              </div>
+            </div>
+          </Button>
+
+          <Button
+            onClick={() => exportChartImage('jpeg')}
+            disabled={isExporting || data.length === 0}
+            className="group h-14 bg-white hover:bg-indigo-50 text-indigo-600 border-indigo-200 hover:border-indigo-500 shadow-sm transition-all rounded-xl"
+            variant="outline"
+          >
+            <div className="flex items-center gap-3">
+              <ImageIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <div className="text-left">
+                <div className="text-sm font-bold leading-none mb-1">Summary JPEG</div>
+                <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Compressed Image</div>
+              </div>
+            </div>
           </Button>
 
           <Button
             onClick={exportJSON}
             disabled={isExporting || data.length === 0}
-            className="group h-14 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all"
+            className="group h-14 bg-white hover:bg-blue-50 text-blue-600 border-blue-200 hover:border-blue-500 shadow-sm transition-all rounded-xl"
+            variant="outline"
           >
-            <FileJson className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
-            Complete JSON
-            <span className="ml-2 text-xs opacity-75">(with analysis)</span>
-          </Button>
-
-          <Button
-            onClick={exportSummaryReport}
-            disabled={isExporting || data.length === 0}
-            className="group h-14 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg hover:shadow-xl transition-all"
-          >
-            <FileText className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
-            Text Summary
-            <span className="ml-2 text-xs opacity-75">({Object.keys(analysis).length} cols)</span>
-          </Button>
-
-          <Button
-            onClick={exportVisualReport}
-            disabled={isExporting || data.length === 0}
-            className="group h-14 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all"
-          >
-            <FileImage className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
-            Visual HTML Report
-            <span className="ml-2 text-xs opacity-75">(with charts)</span>
+            <div className="flex items-center gap-3">
+              <FileJson className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <div className="text-left">
+                <div className="text-sm font-bold leading-none mb-1">Raw JSON</div>
+                <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Analysis Metadata</div>
+              </div>
+            </div>
           </Button>
         </div>
 

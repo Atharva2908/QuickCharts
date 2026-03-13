@@ -85,8 +85,8 @@ export default function DataQualityReport({ quality, analysis }: DataQualityRepo
   return (
     <div className="space-y-6">
       {/* Overall Quality Score with Chart */}
-      <Card className="border-border/40 bg-card/50 p-8 relative overflow-hidden">
-        <div 
+      <Card className="bg-white border-gray-200 shadow-sm p-8 relative overflow-hidden">
+        <div
           className="absolute top-8 right-8 w-32 h-32 bg-gradient-to-br from-background/50 to-transparent rounded-full"
         />
         <img
@@ -95,7 +95,7 @@ export default function DataQualityReport({ quality, analysis }: DataQualityRepo
           className="absolute top-12 right-12 w-24 h-24 shadow-lg rounded-full"
           onError={(e) => e.currentTarget.style.display = 'none'}
         />
-        
+
         <div className="relative z-10 space-y-6">
           <div className="flex items-center justify-between">
             <div>
@@ -106,7 +106,7 @@ export default function DataQualityReport({ quality, analysis }: DataQualityRepo
               {Math.round(qualityScore * 100)}%
             </div>
           </div>
-          
+
           <div className="space-y-3">
             <div className="flex justify-between items-center mb-4">
               <span className="text-sm font-semibold text-muted-foreground">Progress</span>
@@ -114,8 +114,8 @@ export default function DataQualityReport({ quality, analysis }: DataQualityRepo
                 {getQualityLabel(qualityScore)}
               </span>
             </div>
-            <Progress 
-              value={qualityScore * 100} 
+            <Progress
+              value={qualityScore * 100}
               className="h-3 [&>div]:!bg-gradient-to-r [&>div]:from-primary/80 [&>div]:to-primary/40"
             />
           </div>
@@ -168,7 +168,7 @@ export default function DataQualityReport({ quality, analysis }: DataQualityRepo
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground font-semibold">Completeness</p>
             <p className="text-3xl font-black text-emerald-500">
-              {quality.completeness !== undefined 
+              {quality.completeness !== undefined
                 ? `${Math.round(quality.completeness * 100)}%`
                 : 'N/A'
               }
@@ -199,22 +199,21 @@ export default function DataQualityReport({ quality, analysis }: DataQualityRepo
       )}
 
       {/* Column Quality Summary */}
-      <Card className="border-border/40 bg-card/50 p-6">
+      <Card className="bg-white border-gray-200 shadow-sm p-6">
         <h3 className="text-lg font-semibold text-foreground mb-6">Column Quality Breakdown</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(analysis).slice(0, 9).map(([col, colData]: [string, any]) => {
             const missingPercent = colData.missing_percent || 0
             const hasIssues = missingPercent > 0.1
             const colScore = Math.max(0, 1 - missingPercent)
-            
+
             return (
-              <Card 
-                key={col} 
-                className={`border p-4 h-full transition-all hover:shadow-md ${
-                  hasIssues 
-                    ? 'border-amber-500/30 bg-amber-500/5' 
+              <Card
+                key={col}
+                className={`border p-4 h-full transition-all hover:shadow-md ${hasIssues
+                    ? 'border-amber-500/30 bg-amber-500/5'
                     : 'border-emerald-500/20 bg-emerald-500/5'
-                }`}
+                  }`}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -227,7 +226,7 @@ export default function DataQualityReport({ quality, analysis }: DataQualityRepo
                       <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                     )}
                   </div>
-                  
+
                   <div className="space-y-2 text-xs">
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground">Missing</span>
@@ -241,8 +240,8 @@ export default function DataQualityReport({ quality, analysis }: DataQualityRepo
                         <span className="text-foreground font-mono">{colData.unique}</span>
                       </div>
                     )}
-                    <Progress 
-                      value={colScore * 100} 
+                    <Progress
+                      value={colScore * 100}
                       className="h-1.5 [&>div]:bg-gradient-to-r [&>div]:from-primary/60"
                     />
                   </div>
@@ -268,7 +267,7 @@ export default function DataQualityReport({ quality, analysis }: DataQualityRepo
                   <li>Impute with mean/median for numeric columns</li>
                   <li>Use forward-fill for time series</li>
                   jsx
-<li>Remove rows if less than 5% missing</li>
+                  <li>Remove rows if less than 5% missing</li>
                 </ul>
               </div>
             )}

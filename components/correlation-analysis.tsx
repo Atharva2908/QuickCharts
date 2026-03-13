@@ -32,7 +32,7 @@ export default function CorrelationAnalysis({ data, columns }: CorrelationAnalys
       numericCols.forEach((col2, j) => {
         const corr = calculatePearsonCorrelation(data, col1, col2)
         row[col2] = corr
-        
+
         if (i < j && Math.abs(corr) > 0.7) {
           pairs.push({
             col1,
@@ -45,9 +45,9 @@ export default function CorrelationAnalysis({ data, columns }: CorrelationAnalys
       matrix.push(row)
     })
 
-    return { 
-      correlationMatrix: matrix, 
-      strongPairs: pairs.sort((a, b) => Math.abs(b.correlation) - Math.abs(a.correlation)) 
+    return {
+      correlationMatrix: matrix,
+      strongPairs: pairs.sort((a, b) => Math.abs(b.correlation) - Math.abs(a.correlation))
     }
   }, [data, columns])
 
@@ -56,7 +56,7 @@ export default function CorrelationAnalysis({ data, columns }: CorrelationAnalys
     if (correlationMatrix.length === 0) return ''
 
     const numericCols = correlationMatrix.map(row => row.column)
-    const matrixData = correlationMatrix.map(row => 
+    const matrixData = correlationMatrix.map(row =>
       numericCols.map(col => row[col] || 0)
     )
 
@@ -72,7 +72,7 @@ export default function CorrelationAnalysis({ data, columns }: CorrelationAnalys
           })),
           backgroundColor: matrixData[i].map((val: number) => {
             const intensity = Math.abs(val)
-            return val > 0 
+            return val > 0
               ? `rgba(0, 136, 254, ${intensity * 0.8})`
               : `rgba(255, 68, 68, ${intensity * 0.8})`
           })
@@ -95,7 +95,7 @@ export default function CorrelationAnalysis({ data, columns }: CorrelationAnalys
 
   if (correlationMatrix.length === 0) {
     return (
-      <Card className="p-8 border-border/40 bg-card/50 text-center">
+      <Card className="p-8 bg-white border-gray-200 shadow-sm text-center">
         <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-4 opacity-50" />
         <p className="text-muted-foreground">Need at least 2 numeric columns for correlation analysis</p>
       </Card>
@@ -105,14 +105,14 @@ export default function CorrelationAnalysis({ data, columns }: CorrelationAnalys
   return (
     <div className="space-y-6">
       {/* Heatmap with QuickChart */}
-      <Card className="p-6 border-border/40 bg-card/50">
+      <Card className="p-6 bg-white border-gray-200 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
           <BarChart3 className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-semibold text-foreground">Correlation Heatmap</h3>
         </div>
-        
+
         {heatmapUrl ? (
-          <div className="bg-background/50 rounded-lg p-4 border border-border/50 shadow-sm">
+          <div className="bg-gray-50 border-gray-200 rounded-lg p-4 border shadow-sm">
             <img
               src={heatmapUrl}
               alt="Correlation Heatmap"
@@ -134,7 +134,7 @@ export default function CorrelationAnalysis({ data, columns }: CorrelationAnalys
       </Card>
 
       {/* Enhanced Table View (Fallback) */}
-      <Card className="p-6 border-border/40 bg-card/50 overflow-x-auto">
+      <Card className="p-6 bg-white border-gray-200 shadow-sm overflow-x-auto">
         <h4 className="text-md font-semibold mb-4 text-foreground">Correlation Matrix</h4>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
@@ -159,14 +159,14 @@ export default function CorrelationAnalysis({ data, columns }: CorrelationAnalys
                     .filter(([key]) => key !== 'column')
                     .map(([col, value]: any) => {
                       const intensity = Math.abs(value)
-                      const bgColor = value > 0 
+                      const bgColor = value > 0
                         ? `rgba(0, 136, 254, ${intensity * 0.5})`
                         : `rgba(255, 68, 68, ${intensity * 0.5})`
                       return (
                         <td
                           key={col}
                           className="text-center p-3 font-mono"
-                          style={{ 
+                          style={{
                             backgroundColor: bgColor,
                             borderRadius: '4px',
                             minWidth: '60px'
@@ -185,7 +185,7 @@ export default function CorrelationAnalysis({ data, columns }: CorrelationAnalys
 
       {/* Strong Correlations */}
       {strongPairs.length > 0 && (
-        <Card className="p-6 border-border/40 bg-card/50">
+        <Card className="p-6 bg-white border-gray-200 shadow-sm">
           <h3 className="text-lg font-semibold mb-6 text-foreground flex items-center gap-2">
             Strong Correlations ({strongPairs.length})
           </h3>
@@ -196,7 +196,7 @@ export default function CorrelationAnalysis({ data, columns }: CorrelationAnalys
                 data: {
                   datasets: [{
                     label: `${pair.col1} vs ${pair.col2}`,
-                    data: [{x: 0, y: 0}, {x: 10, y: pair.correlation * 10}],
+                    data: [{ x: 0, y: 0 }, { x: 10, y: pair.correlation * 10 }],
                     showLine: true,
                     borderColor: pair.correlation > 0 ? '#3b82f6' : '#ef4444',
                     backgroundColor: pair.correlation > 0 ? '#3b82f6' : '#ef4444',
@@ -208,15 +208,15 @@ export default function CorrelationAnalysis({ data, columns }: CorrelationAnalys
                   plugins: { legend: { display: false } }
                 }
               }
-              
+
               const trendUrl = `${API_BASE_URL}/chart?c=${encodeURIComponent(JSON.stringify(chartConfig))}&w=200&h=100&f=png`
-              
+
               return (
-                <div key={idx} className="p-4 rounded-xl bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 hover:shadow-lg transition-all">
+                <div key={idx} className="p-4 rounded-xl bg-white border border-gray-200 hover:shadow-md transition-all">
                   <div className="flex items-center gap-4">
-                    <div className="bg-background/50 rounded-lg p-2 border border-border/50 flex-shrink-0">
-                      <img 
-                        src={trendUrl} 
+                    <div className="bg-gray-50 rounded-lg p-2 border border-gray-200 flex-shrink-0">
+                      <img
+                        src={trendUrl}
                         alt={`${pair.col1} vs ${pair.col2}`}
                         className="w-20 h-16 object-contain rounded"
                         onError={(e) => e.currentTarget.style.display = 'none'}
@@ -228,11 +228,10 @@ export default function CorrelationAnalysis({ data, columns }: CorrelationAnalys
                       </p>
                       <p className="text-sm text-muted-foreground mt-1">{pair.strength} ({Math.abs(pair.correlation).toFixed(3)})</p>
                     </div>
-                    <div className={`px-3 py-1 rounded-full text-sm font-bold ${
-                      pair.correlation > 0 
-                        ? 'bg-blue-500/20 text-blue-600 border-blue-500/30' 
+                    <div className={`px-3 py-1 rounded-full text-sm font-bold ${pair.correlation > 0
+                        ? 'bg-blue-500/20 text-blue-600 border-blue-500/30'
                         : 'bg-red-500/20 text-red-600 border-red-500/30'
-                    } border`}>
+                      } border`}>
                       {pair.correlation.toFixed(3)}
                     </div>
                   </div>

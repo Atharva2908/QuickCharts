@@ -54,7 +54,7 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
 
   const validateFile = (file: File): boolean => {
     const validExtensions = ['.csv', '.xlsx', '.xls']
-    const isValidType = validExtensions.some(ext => 
+    const isValidType = validExtensions.some(ext =>
       file.name.toLowerCase().endsWith(ext)
     )
     const maxSize = 100 * 1024 * 1024 // 100MB
@@ -102,10 +102,10 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
       onDataUpload(response.data, file.name)
     } catch (err: any) {
       console.error('Upload error:', err)
-      const errorMessage = err.response?.data?.detail || 
-                          err.response?.data?.error || 
-                          err.message || 
-                          'Failed to process file. Please check server and try again.'
+      const errorMessage = err.response?.data?.detail ||
+        err.response?.data?.error ||
+        err.message ||
+        'Failed to process file. Please check server and try again.'
       setError(errorMessage)
     } finally {
       setIsLoading(false)
@@ -147,18 +147,17 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
           </h2>
         </div>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Drag & drop your CSV/Excel file to instantly unlock interactive charts, 
+          Drag & drop your CSV/Excel file to instantly unlock interactive charts,
           automated analysis, and AI-powered insights. No setup required.
         </p>
       </div>
 
       {/* Upload Card */}
-      <Card 
-        className={`relative border-2 border-dashed transition-all duration-300 p-1 hover:shadow-2xl hover:scale-[1.02] ${
-          isDragging 
-            ? 'border-primary bg-gradient-to-br from-primary/10 to-primary/5 ring-4 ring-primary/30 shadow-2xl' 
-            : 'border-border/30 hover:border-primary/60 bg-gradient-to-br from-background/50'
-        }`}
+      <Card
+        className={`relative border-2 border-dashed transition-all duration-300 p-1 bg-white hover:shadow-2xl hover:scale-[1.02] ${isDragging
+          ? 'border-blue-500 bg-blue-50/50 ring-4 ring-blue-500/20 shadow-xl shadow-blue-500/10'
+          : 'border-gray-300 hover:border-blue-400 shadow-sm'
+          }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -166,9 +165,8 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
         <div className="p-12 relative z-10">
           <div className="flex flex-col items-center justify-center space-y-8 text-center">
             {/* Animated Icon */}
-            <div className={`p-6 rounded-2xl transition-all duration-500 ${
-              isDragging ? 'bg-primary/20 scale-110' : 'bg-primary/10 hover:scale-105'
-            }`}>
+            <div className={`p-6 rounded-2xl transition-all duration-500 ${isDragging ? 'bg-primary/20 scale-110' : 'bg-primary/10 hover:scale-105'
+              }`}>
               {isLoading ? (
                 <Loader2 className="w-16 h-16 text-primary animate-spin" />
               ) : isDragging ? (
@@ -181,12 +179,12 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
             {/* Status Text */}
             <div className="space-y-3">
               <h3 className="text-3xl font-bold text-foreground">
-                {isLoading ? '🔄 Processing Your Data...' : 
-                   isDragging ? '🚀 Drop to Upload!' : 'Drop your file here or click below'}
+                {isLoading ? '🔄 Processing Your Data...' :
+                  isDragging ? '🚀 Drop to Upload!' : 'Drop your file here or click below'}
               </h3>
               <p className="text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
-                {isLoading 
-                  ? 'Analyzing structure → Detecting patterns → Generating visualizations...' 
+                {isLoading
+                  ? 'Analyzing structure → Detecting patterns → Generating visualizations...'
                   : 'Supports CSV, XLSX, XLS files • Maximum 100MB • Instant analysis'
                 }
               </p>
@@ -194,7 +192,7 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
 
             {/* Action Button */}
             {!isLoading && (
-              <Button 
+              <Button
                 onClick={handleSelectFileClick}
                 className="group bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground px-10 py-7 text-lg font-semibold shadow-xl hover:shadow-2xl h-auto rounded-2xl transition-all duration-300 transform hover:-translate-y-1"
                 disabled={isLoading}
@@ -222,14 +220,14 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
                   <span className="text-lg font-semibold text-foreground">Processing Pipeline</span>
                   <span className="text-2xl font-bold text-primary">{progress}%</span>
                 </div>
-                <Progress 
-                  value={progress} 
+                <Progress
+                  value={progress}
                   className="h-3 [&>div]:bg-gradient-to-r [&>div]:from-primary to-secondary rounded-full shadow-inner"
                 />
                 <p className="text-sm text-muted-foreground mt-3 text-center">
-                  {progress < 30 ? 'Uploading file...' : 
-                   progress < 70 ? 'Parsing data...' : 
-                   'Generating visualizations...'}
+                  {progress < 30 ? 'Uploading file...' :
+                    progress < 70 ? 'Parsing data...' :
+                      'Generating visualizations...'}
                 </p>
               </div>
             )}
@@ -254,7 +252,7 @@ export default function FileUploadSection({ onDataUpload }: FileUploadProps) {
           { icon: BarChart3, title: 'Auto Analysis', desc: 'Smart data detection, quality checks, and visualization generation.' },
           { icon: Upload, title: 'AI Insights', desc: 'Automated pattern detection and actionable recommendations.' }
         ].map(({ icon: Icon, title, desc }, idx) => (
-          <Card key={idx} className="border-border/40 bg-gradient-to-b from-card p-8 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group border-0 bg-card/80 backdrop-blur-sm">
+          <Card key={idx} className="bg-white border border-gray-200 shadow-sm p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group rounded-2xl">
             <div className="flex flex-col items-center text-center h-full">
               <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 p-5 rounded-2xl mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
                 <Icon className="w-10 h-10 text-primary group-hover:scale-110 transition-transform" />

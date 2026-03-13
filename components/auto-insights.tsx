@@ -28,9 +28,8 @@ export default function AutoInsights({ data, analysis, quality }: AutoInsightsPr
     allInsights.push({
       type: 'info',
       title: 'Dataset Overview',
-      message: `Your dataset contains ${data.length} rows across multiple columns. This is a ${
-        data.length < 100 ? 'small' : data.length < 1000 ? 'medium' : 'large'
-      } dataset.`,
+      message: `Your dataset contains ${data.length} rows across multiple columns. This is a ${data.length < 100 ? 'small' : data.length < 1000 ? 'medium' : 'large'
+        } dataset.`,
     })
 
     // Quality insight
@@ -71,18 +70,17 @@ export default function AutoInsights({ data, analysis, quality }: AutoInsightsPr
                 }]
               },
               options: {
-                plugins: { 
-                  title: { 
-                    display: true, 
-                    text: `${col} Distribution`,
-                    font: { size: 14 }
-                  }
-                }
+                title: {
+                  display: true,
+                  text: `${col} Distribution`,
+                  fontSize: 14
+                },
+                legend: { display: false }
               }
             }
-            
+
             const chartUrl = `${API_BASE_URL}/chart?c=${encodeURIComponent(JSON.stringify(chartConfig))}&w=320&h=200&f=png`
-            
+
             allInsights.push({
               type: 'trend',
               title: `High Variability in ${col}`,
@@ -107,17 +105,16 @@ export default function AutoInsights({ data, analysis, quality }: AutoInsightsPr
                 }]
               },
               options: {
-                plugins: { 
-                  title: { 
-                    display: true, 
-                    text: `${col} Exponential Pattern`
-                  }
-                }
+                title: {
+                  display: true,
+                  text: `${col} Exponential Pattern`
+                },
+                legend: { display: false }
               }
             }
-            
+
             const chartUrl = `${API_BASE_URL}/chart?c=${encodeURIComponent(JSON.stringify(chartConfig))}&w=320&h=200&f=png`
-            
+
             allInsights.push({
               type: 'trend',
               title: `Exponential Pattern in ${col}`,
@@ -143,24 +140,22 @@ export default function AutoInsights({ data, analysis, quality }: AutoInsightsPr
             }]
           },
           options: {
-            plugins: {
-              title: {
-                display: true,
-                text: `${col} - Top Categories`
-              },
-              legend: {
-                position: 'bottom'
-              }
+            title: {
+              display: true,
+              text: `${col} - Top Categories`
+            },
+            legend: {
+              position: 'bottom'
             }
           }
         }
-        
+
         const chartUrl = `${API_BASE_URL}/chart?c=${encodeURIComponent(JSON.stringify(chartConfig))}&w=280&h=280&f=png`
-        
+
         allInsights.push({
           type: 'info',
           title: `High Cardinality in ${col}`,
-          message: `${col} has ${uniqueCount} unique values (${Math.round(uniqueRatio*100)}% unique). Consider grouping.`,
+          message: `${col} has ${uniqueCount} unique values (${Math.round(uniqueRatio * 100)}% unique). Consider grouping.`,
           chartUrl
         })
       }
@@ -170,7 +165,7 @@ export default function AutoInsights({ data, analysis, quality }: AutoInsightsPr
     const completeness = quality.completeness || 0
     if (completeness < 1.0) {
       const missingPercent = ((1 - completeness) * 100).toFixed(1)
-      
+
       const chartConfig = {
         type: 'doughnut',
         data: {
@@ -187,9 +182,9 @@ export default function AutoInsights({ data, analysis, quality }: AutoInsightsPr
           }
         }
       }
-      
+
       const chartUrl = `${API_BASE_URL}/chart?c=${encodeURIComponent(JSON.stringify(chartConfig))}&w=250&h=250&f=png`
-      
+
       allInsights.push({
         type: 'warning',
         title: 'Missing Data Detected',
@@ -211,13 +206,13 @@ export default function AutoInsights({ data, analysis, quality }: AutoInsightsPr
           }]
         }
       }
-      
+
       const chartUrl = `${API_BASE_URL}/chart?c=${encodeURIComponent(JSON.stringify(chartConfig))}&w=300&h=200&f=png`
-      
+
       allInsights.push({
         type: 'warning',
         title: 'Duplicate Records',
-        message: `${duplicateCount} duplicate rows (${Math.round((duplicateCount/data.length)*100)}% of total).`,
+        message: `${duplicateCount} duplicate rows (${Math.round((duplicateCount / data.length) * 100)}% of total).`,
         chartUrl
       })
     }
@@ -249,7 +244,7 @@ export default function AutoInsights({ data, analysis, quality }: AutoInsightsPr
 
   if (insights.length === 0) {
     return (
-      <Card className="p-8 border-border/40 bg-card/50 text-center">
+      <Card className="p-8 bg-white border-gray-200 shadow-sm text-center">
         <Lightbulb className="w-8 h-8 text-primary mx-auto mb-4 opacity-50" />
         <p className="text-muted-foreground">No specific insights available yet</p>
       </Card>
@@ -274,12 +269,12 @@ export default function AutoInsights({ data, analysis, quality }: AutoInsightsPr
                   <p className="text-sm text-muted-foreground leading-relaxed">{insight.message}</p>
                 </div>
               </div>
-              
+
               {insight.chartUrl && (
                 <div className="flex justify-center pt-3">
                   <div className="bg-background/50 rounded-lg p-2 shadow-sm border border-border/50">
-                    <img 
-                      src={insight.chartUrl} 
+                    <img
+                      src={insight.chartUrl}
                       alt={`${insight.title} visualization`}
                       className="rounded-md shadow-sm max-w-full h-auto"
                       style={{ maxHeight: '220px', width: '100%' }}

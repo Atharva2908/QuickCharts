@@ -58,6 +58,48 @@ class MongoDB:
         await self.db["analyses"].create_index("upload_id")
         await self.db["analyses"].create_index("created_at")
         await self.db["analyses"].create_index("user_id")
+        # Index for shares collection
+        await self.db["shares"].create_index("share_id", unique=True)
+        await self.db["shares"].create_index("upload_id")
+
+        # Index for users collection
+        await self.db["users"].create_index("email", unique=True)
+        
+    async def create_user(self, user_data: Dict[str, Any]) -> str:
+        """Create a new user"""
+        if self.db is None:
+            raise RuntimeError("Database not connected")
+        
+        user_doc = {
+            **user_data,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }
+        
+        result = await self.db["users"].insert_one(user_doc)
+        logger.info(f"Created user: {user_data.get('email')} (ID: {result.inserted_id})")
+        return str(result.inserted_id)
+
+    async def get_user_by_email(self, email: str) -> Optional[Dict]:
+        """Get a user by email"""
+        if self.db is None:
+            raise RuntimeError("Database not connected")
+            
+        user = await self.db["users"].find_one({"email": email})
+        return user
+    
+    async def update_user(self, email: str, updates: Dict[str, Any]) -> bool:
+        """Update a user's profile information"""
+        if self.db is None:
+            raise RuntimeError("Database not connected")
+        
+        updates["updated_at"] = datetime.utcnow()
+        result = await self.db["users"].update_one(
+            {"email": email},
+            {"$set": updates}
+        )
+        
+        return result.modified_count > 0
     
     async def save_upload(
         self,
@@ -67,7 +109,7 @@ class MongoDB:
         metadata: Optional[Dict] = None
     ) -> str:
         """Save file upload record"""
-        if not self.db:
+        if self.db is None:
             raise RuntimeError("Database not connected")
         
         upload_doc = {
@@ -91,7 +133,7 @@ class MongoDB:
         user_id: Optional[str] = None
     ) -> str:
         """Save data analysis results"""
-        if not self.db:
+        if self.db is None:
             raise RuntimeError("Database not connected")
         
         analysis_doc = {
@@ -109,15 +151,16 @@ class MongoDB:
     
     async def get_upload(self, upload_id: str) -> Optional[Dict]:
         """Get upload record by ID"""
-        if not self.db:
+        if self.db is None:
             raise RuntimeError("Database not connected")
         
-        upload = await self.db["uploads"].find_one({"_id": upload_id})
+        from bson import ObjectId
+        upload = await self.db["uploads"].find_one({"_id": ObjectId(upload_id)})
         return upload
     
     async def get_analysis(self, analysis_id: str) -> Optional[Dict]:
         """Get analysis record by ID"""
-        if not self.db:
+        if self.db is None:
             raise RuntimeError("Database not connected")
         
         analysis = await self.db["analyses"].find_one({"_id": analysis_id})
@@ -130,7 +173,7 @@ class MongoDB:
         skip: int = 0
     ) -> List[Dict]:
         """Get all uploads for a user"""
-        if not self.db:
+        if self.db is None:
             raise RuntimeError("Database not connected")
         
         uploads = await self.db["uploads"].find(
@@ -146,7 +189,7 @@ class MongoDB:
         skip: int = 0
     ) -> List[Dict]:
         """Get all analyses for a user"""
-        if not self.db:
+        if self.db is None:
             raise RuntimeError("Database not connected")
         
         analyses = await self.db["analyses"].find(
@@ -157,7 +200,7 @@ class MongoDB:
     
     async def delete_upload(self, upload_id: str) -> bool:
         """Delete an upload record"""
-        if not self.db:
+        if self.db is None:
             raise RuntimeError("Database not connected")
         
         result = await self.db["uploads"].delete_one({"_id": upload_id})
@@ -169,7 +212,7 @@ class MongoDB:
         updates: Dict[str, Any]
     ) -> bool:
         """Update an upload record"""
-        if not self.db:
+        if self.db is None:
             raise RuntimeError("Database not connected")
         
         updates["updated_at"] = datetime.utcnow()
@@ -182,7 +225,7 @@ class MongoDB:
     
     async def get_stats(self) -> Dict[str, Any]:
         """Get database statistics"""
-        if not self.db:
+        if self.db is None:
             raise RuntimeError("Database not connected")
         
         upload_count = await self.db["uploads"].count_documents({})
@@ -193,6 +236,27 @@ class MongoDB:
             "total_analyses": analysis_count,
             "collections": ["uploads", "analyses"]
         }
+    async def create_share_link(self, upload_id: str, user_id: str) -> str:
+        """Create a public share link for a dashboard"""
+        if self.db is None: raise RuntimeError("Database not connected")
+        
+        import uuid
+        share_id = str(uuid.uuid4())
+        
+        share_doc = {
+            "share_id": share_id,
+            "upload_id": upload_id,
+            "user_id": user_id,
+            "created_at": datetime.utcnow()
+        }
+        
+        await self.db["shares"].insert_one(share_doc)
+        return share_id
+
+    async def get_share(self, share_id: str) -> Optional[Dict]:
+        """Get share record by ID"""
+        if self.db is None: raise RuntimeError("Database not connected")
+        return await self.db["shares"].find_one({"share_id": share_id})
 
 
 # Global database instance

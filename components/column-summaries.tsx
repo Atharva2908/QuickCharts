@@ -1,8 +1,8 @@
 'use client'
 
 import { Card } from '@/components/ui/card'
-import { 
-  BarChart3, Hash, Type, Calendar, Percent 
+import {
+  BarChart3, Hash, Type, Calendar, Percent
 } from 'lucide-react'
 import { API_BASE_URL } from '@/lib/constants'
 
@@ -30,7 +30,7 @@ interface ColumnSummary {
 export default function ColumnSummaries({ analysis, columns }: ColumnSummariesProps) {
   const summaries: ColumnSummary[] = columns.map(col => {
     const stats = analysis[col] || {}
-    
+
     // Generate distribution chart for numeric columns
     let chartUrl = ''
     if (stats.mean && stats.min !== undefined && stats.max !== undefined) {
@@ -41,8 +41,8 @@ export default function ColumnSummaries({ analysis, columns }: ColumnSummariesPr
           datasets: [{
             label: `${col} Distribution`,
             data: [
-              stats.min || 0, 
-              stats.mean || 0, 
+              stats.min || 0,
+              stats.mean || 0,
               stats.median || stats.mean || 0,
               stats.max || 0
             ],
@@ -50,16 +50,15 @@ export default function ColumnSummaries({ analysis, columns }: ColumnSummariesPr
           }]
         },
         options: {
-          plugins: {
-            title: {
-              display: true,
-              text: `${col} Stats`,
-              font: { size: 12 }
-            }
-          }
+          title: {
+            display: true,
+            text: `${col} Stats`,
+            fontSize: 12
+          },
+          legend: { display: false }
         }
       }
-      
+
       chartUrl = `${API_BASE_URL}/chart?c=${encodeURIComponent(JSON.stringify(chartConfig))}&w=300&h=200&f=png`
     }
 
@@ -96,10 +95,10 @@ export default function ColumnSummaries({ analysis, columns }: ColumnSummariesPr
         <BarChart3 className="w-5 h-5 text-primary" />
         Column Analysis
       </h3>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {summaries.map(({ name, stats, chartUrl }) => (
-          <Card key={name} className="border-border/40 bg-card/50 p-5 h-full">
+          <Card key={name} className="bg-white border-gray-200 shadow-sm p-5 h-full">
             <div className="space-y-4 h-full flex flex-col">
               {/* Header */}
               <div className="flex items-start justify-between">
@@ -185,7 +184,7 @@ export default function ColumnSummaries({ analysis, columns }: ColumnSummariesPr
               {chartUrl && (
                 <div className="pt-3 mt-auto">
                   <div className="bg-background/50 rounded-lg p-2 border border-border/50">
-                    <img 
+                    <img
                       src={chartUrl}
                       alt={`${name} distribution`}
                       className="w-full h-32 object-contain rounded-md shadow-sm"

@@ -11,12 +11,18 @@ export const metadata: Metadata = {
   title: 'QuickCharts - Data Visualization Platform',
   description: 'Upload your data and instantly gain meaningful insights with interactive visualizations',
   generator: 'v0.app',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
 }
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+}
+
+import { GoogleOAuthProvider } from '@react-oauth/google'
+import { ThemeProvider } from '@/components/theme-provider'
+
+import { Toaster } from 'sonner'
 
 export default function RootLayout({
   children,
@@ -24,9 +30,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body className="font-sans antialiased" style={{ backgroundColor: 'hsl(10, 20%, 8%)', color: 'hsl(0, 0%, 95%)' }}>
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className="font-sans antialiased bg-gray-50 text-gray-900 border-gray-200">
+        <GoogleOAuthProvider clientId="350356598379-3h7hsuur59jftgnd7136pibj88q1o00l.apps.googleusercontent.com">
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+            <Toaster position="top-right" richColors />
+          </ThemeProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   )

@@ -32,11 +32,9 @@ export default function FileMetadata({
       }]
     },
     options: {
-      plugins: {
-        legend: { display: false },
-        title: { display: false }
-      },
-      cutout: '60%'
+      legend: { display: false },
+      title: { display: false },
+      cutoutPercentage: 60
     }
   }))}&w=100&h=100&f=png`
 

@@ -9,3 +9,9 @@ motor==3.3.2
 scipy==1.11.4
 pydantic==2.5.0
 pydantic-settings==2.1.0
+passlib[bcrypt]
+PyJWT
+python-multipart
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
