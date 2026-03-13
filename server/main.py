@@ -110,10 +110,35 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Include Auth Router
-from auth import router as auth_router
-app.include_router(auth_router)
+# Exception handlers for better error reporting and CORS support on errors
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    logger.error(f"Global Exception caught: {str(exc)}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "error": str(exc)},
+        headers={
+            "Access-Control-Allow-Origin": request.headers.get("origin", "*"),
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        }
+    )
 
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers={
+            "Access-Control-Allow-Origin": request.headers.get("origin", "*"),
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        }
+    )
+
+# Add Middleware BEFORE including routes
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -122,12 +147,17 @@ app.add_middleware(
         "https://quick-charts-one.vercel.app",
         "https://quickcharts.onrender.com",
     ],
-    allow_origin_regex="https://.*\.vercel\.app",
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["*"],
 )
+
+# Include Auth Router
+from auth import router as auth_router
+app.include_router(auth_router)
+
 
 
 # Startup and shutdown events
@@ -475,10 +505,18 @@ Only return JSON."""
             }
         }
 
+
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
-    return {"status": "ok"}
+    """Health check endpoint with database status"""
+    try:
+        from database import get_db
+        db = await get_db()
+        await db.client.admin.command('ping')
+        db_status = "connected"
+    except Exception as e:
+        db_status = f"disconnected: {str(e)}"
+    return {"status": "ok", "database": db_status}
 
 @app.get("/chart")
 async def get_chart(c: str, w: int = 500, h: int = 300, f: str = 'png', v: Optional[str] = '3'):
