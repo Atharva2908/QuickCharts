@@ -114,7 +114,6 @@ app = FastAPI(
 from auth import router as auth_router
 app.include_router(auth_router)
 
-# ✅ FULL CORS - Deploy immediately
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -123,9 +122,11 @@ app.add_middleware(
         "https://quick-charts-one.vercel.app",
         "https://quickcharts.onrender.com",
     ],
+    allow_origin_regex="https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
