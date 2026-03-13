@@ -32,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased bg-gray-50 text-gray-900 border-gray-200">
-        <GoogleOAuthProvider clientId="350356598379-3h7hsuur59jftgnd7136pibj88q1o00l.apps.googleusercontent.com">
+        <GoogleOAuthProvider clientId="639901685795-m9fanibglpjnaeebfjj4q0camicn32va.apps.googleusercontent.com">
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
             <Toaster position="top-right" richColors />

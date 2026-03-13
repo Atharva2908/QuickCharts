@@ -25,7 +25,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "350356598379-3h7hsuur59jftgnd7136pibj88q1o00l.apps.googleusercontent.com")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "639901685795-m9fanibglpjnaeebfjj4q0camicn32va.apps.googleusercontent.com")
 
 # Models Validate
 class UserRegister(BaseModel):

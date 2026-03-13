@@ -118,13 +118,13 @@ app.include_router(auth_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000", 
+        "http://localhost:3000",
         "http://127.0.0.1:3000",
         "https://quick-charts-one.vercel.app",
-        "*"  # ← TEMPORARY - allows ALL origins during testing
+        "https://quickcharts.onrender.com",
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
