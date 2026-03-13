@@ -269,7 +269,7 @@ async def login(request: LoginRequest, db: MongoDB = Depends(get_db)):
         # Store OTP in user document with expiration (5 mins)
         otp_expiry = datetime.utcnow() + timedelta(minutes=5)
         await db.db["users"].update_one(
-            {"email": request.email},
+            {"email": user["email"]},  # Use email from DB which is already lowercase
             {"$set": {"current_otp": otp, "otp_expiry": otp_expiry}}
         )
         
@@ -325,7 +325,8 @@ async def verify_otp(request: OTPVerifyRequest, db: MongoDB = Depends(get_db)):
 
 @router.post("/forgot-password")
 async def forgot_password(request: ForgotPasswordRequest, db: MongoDB = Depends(get_db)):
-    user = await db.get_user_by_email(request.email)
+    email_lower = request.email.lower().strip()
+    user = await db.get_user_by_email(email_lower)
     if not user:
         # Don't reveal if user exists for security, but for this app we can be helpful
         raise HTTPException(status_code=404, detail="User not found")
@@ -334,11 +335,12 @@ async def forgot_password(request: ForgotPasswordRequest, db: MongoDB = Depends(
     reset_expiry = datetime.utcnow() + timedelta(hours=1)
     
     await db.db["users"].update_one(
-        {"email": request.email},
+        {"email": email_lower},
         {"$set": {"reset_token": reset_token, "reset_expiry": reset_expiry}}
     )
     
-    reset_url = f"http://localhost:3000/reset-password?token={reset_token}"
+    frontend_url = os.getenv("FRONTEND_URL", "https://quick-charts-one.vercel.app")
+    reset_url = f"{frontend_url}/reset-password?token={reset_token}"
     
     email_body = f"""
     <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
