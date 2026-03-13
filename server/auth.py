@@ -240,7 +240,21 @@ async def google_login(data: GoogleLogin, db: MongoDB = Depends(get_db)):
 async def login(request: LoginRequest, db: MongoDB = Depends(get_db)):
     email_lower = request.email.lower().strip()
     user = await db.get_user_by_email(email_lower)
-    if not user or not verify_password(request.password, user.get("hashed_password", "")):
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password"
+        )
+    
+    # Check if user is a Google-only user
+    if user.get("auth_provider") == "google" and not user.get("hashed_password"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This account is linked with Google. Please Sign in with Google."
+        )
+
+    if not verify_password(request.password, user.get("hashed_password", "")):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"
