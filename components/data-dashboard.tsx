@@ -17,14 +17,14 @@ import PredictiveAnalytics from './predictive-analytics'
 import { Button } from '@/components/ui/button'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
-import { 
-  BarChart3, 
-  Table2, 
-  TrendingUp, 
-  AlertTriangle, 
-  Lightbulb, 
-  Settings, 
-  Activity, 
+import {
+  BarChart3,
+  Table2,
+  TrendingUp,
+  AlertTriangle,
+  Lightbulb,
+  Settings,
+  Activity,
   Loader2,
   Clock,
   ChevronRight,
@@ -79,18 +79,21 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
 
     setHistory(prev => [newStep, ...prev])
     setIsCleaning(true)
-    
+
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/clean/${data.upload_id}`, { action })
+      const token = localStorage.getItem('datagraphy_token')
+      const response = await axios.post(`${API_BASE_URL}/api/clean/${data.upload_id}`, { action }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       if (onDataUpdate) {
         onDataUpdate(response.data)
       }
-      setHistory(prev => prev.map(step => 
+      setHistory(prev => prev.map(step =>
         step.id === newStep.id ? { ...step, status: 'success' } : step
       ))
     } catch (e) {
       console.error(e)
-      setHistory(prev => prev.map(step => 
+      setHistory(prev => prev.map(step =>
         step.id === newStep.id ? { ...step, status: 'error' } : step
       ))
       alert("Data transformation failed. Check the server console.")
@@ -109,9 +112,9 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pdfWidth = pdf.internal.pageSize.getWidth()
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width
-      
+
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-      pdf.save(`QuickCharts_Report_${fileName}.pdf`)
+      pdf.save(`DataGraphy_Report_${fileName}.pdf`)
     } catch (e) {
       console.error("PDF Export failed", e)
       alert("Failed to export PDF.")
@@ -206,7 +209,7 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
   const dataStory = useMemo(() => {
     const qScore = dataQuality.quality_score || 0
     const health = qScore > 0.8 ? 'Excellent' : qScore > 0.5 ? 'Moderate' : 'Poor'
-    
+
     return {
       title: `Dataset ${health}`,
       summary: `Your dataset contains ${rows.length.toLocaleString()} records. The overall data integrity is rated as ${health.toLowerCase()} with a ${Math.round(qScore * 100)}% quality score.`,
@@ -219,7 +222,10 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
     if (!data.upload_id) return
     setIsSharing(true)
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/share/${data.upload_id}`)
+      const token = localStorage.getItem('datagraphy_token')
+      const response = await axios.get(`${API_BASE_URL}/api/share/${data.upload_id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       setPublicUrl(window.location.origin + response.data.public_url)
       toast.success("Public link generated!")
     } catch (e) {
@@ -236,18 +242,18 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-primary" />
-            <h2 className="text-3xl font-bold text-foreground">Data Analysis Dashboard</h2>
+            <h2 className="text-3xl font-bold text-foreground">DataGraphy Dashboard</h2>
           </div>
           <div className="flex items-center gap-2">
-            <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleShare} 
-                disabled={isSharing}
-                className="gap-2 font-semibold bg-white border-primary/20 hover:bg-primary/5"
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShare}
+              disabled={isSharing}
+              className="gap-2 font-semibold bg-white border-primary/20 hover:bg-primary/5"
             >
-                {isSharing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4 text-emerald-600" />}
-                {publicUrl ? "Link Ready" : "Share"}
+              {isSharing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4 text-emerald-600" />}
+              {publicUrl ? "Link Ready" : "Share"}
             </Button>
             <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-2 font-semibold bg-white">
               <FileDown className="w-4 h-4 text-blue-600" />
@@ -263,13 +269,13 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
         {publicUrl && (
           <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center gap-2">
-               <Globe className="w-4 h-4 text-emerald-600" />
-               <span className="text-sm font-medium text-emerald-900">Public Link:</span>
-               <code className="text-xs bg-white px-2 py-1 rounded border border-emerald-200">{publicUrl}</code>
+              <Globe className="w-4 h-4 text-emerald-600" />
+              <span className="text-sm font-medium text-emerald-900">Public Link:</span>
+              <code className="text-xs bg-white px-2 py-1 rounded border border-emerald-200">{publicUrl}</code>
             </div>
             <Button size="sm" variant="ghost" className="text-emerald-700 h-8" onClick={() => {
-                navigator.clipboard.writeText(publicUrl)
-                toast.success("Copied to clipboard")
+              navigator.clipboard.writeText(publicUrl)
+              toast.success("Copied to clipboard")
             }}>Copy</Button>
           </div>
         )}
@@ -331,7 +337,7 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
               <div className="absolute top-0 right-0 p-8 opacity-5">
                 <Globe className="w-32 h-32 rotate-12 transition-transform group-hover:rotate-45 duration-700" />
               </div>
-              
+
               <div className="space-y-6 relative z-10">
                 <div className="flex items-center gap-3">
                   <Badge className="bg-primary/20 text-primary border-primary/30 py-1.5 px-3">
@@ -340,11 +346,11 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
                   </Badge>
                   <h3 className="text-2xl font-black tracking-tight text-foreground">{dataStory.title}</h3>
                 </div>
-                
+
                 <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl font-medium italic">
                   "{dataStory.summary}"
                 </p>
-                
+
                 <div className="flex flex-wrap gap-4 pt-4">
                   <div className="flex items-center gap-2 bg-background/50 border border-border/40 rounded-full px-4 py-2 text-sm font-bold shadow-sm">
                     <ShieldCheck className="w-4 h-4 text-emerald-500" />
@@ -359,38 +365,38 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
             </Card>
 
             <Card className="p-6 bg-white border-border/40 shadow-xl shadow-primary/5 flex flex-col items-center justify-center text-center space-y-4">
-               <div className="relative w-32 h-32">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-3xl font-black text-primary">{Math.round((dataQuality.quality_score || 0) * 100)}%</span>
-                  </div>
-                  <svg className="w-full h-full transform -rotate-90">
-                    <circle
-                      cx="64"
-                      cy="64"
-                      r="58"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      fill="transparent"
-                      className="text-primary/10"
-                    />
-                    <circle
-                      cx="64"
-                      cy="64"
-                      r="58"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      fill="transparent"
-                      strokeDasharray={Math.PI * 2 * 58}
-                      strokeDashoffset={Math.PI * 2 * 58 * (1 - (dataQuality.quality_score || 0))}
-                      strokeLinecap="round"
-                      className="text-primary transition-all duration-1000 ease-in-out"
-                    />
-                  </svg>
-               </div>
-               <div className="space-y-1">
-                 <h4 className="font-black text-foreground uppercase tracking-widest text-xs">Integrity Score</h4>
-                 <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Verified Dataset Health</p>
-               </div>
+              <div className="relative w-32 h-32">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-3xl font-black text-primary">{Math.round((dataQuality.quality_score || 0) * 100)}%</span>
+                </div>
+                <svg className="w-full h-full transform -rotate-90">
+                  <circle
+                    cx="64"
+                    cy="64"
+                    r="58"
+                    stroke="currentColor"
+                    strokeWidth="8"
+                    fill="transparent"
+                    className="text-primary/10"
+                  />
+                  <circle
+                    cx="64"
+                    cy="64"
+                    r="58"
+                    stroke="currentColor"
+                    strokeWidth="8"
+                    fill="transparent"
+                    strokeDasharray={Math.PI * 2 * 58}
+                    strokeDashoffset={Math.PI * 2 * 58 * (1 - (dataQuality.quality_score || 0))}
+                    strokeLinecap="round"
+                    className="text-primary transition-all duration-1000 ease-in-out"
+                  />
+                </svg>
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-black text-foreground uppercase tracking-widest text-xs">Integrity Score</h4>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Verified Dataset Health</p>
+              </div>
             </Card>
           </div>
 
@@ -556,10 +562,9 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
                     history.map((step) => (
                       <div key={step.id} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-border/20">
                         <div className="flex items-center gap-2">
-                          <div className={`w-1.5 h-1.5 rounded-full ${
-                            step.status === 'success' ? 'bg-emerald-500' : 
-                            step.status === 'error' ? 'bg-destructive' : 'bg-primary animate-pulse'
-                          }`} />
+                          <div className={`w-1.5 h-1.5 rounded-full ${step.status === 'success' ? 'bg-emerald-500' :
+                              step.status === 'error' ? 'bg-destructive' : 'bg-primary animate-pulse'
+                            }`} />
                           <span className="text-[11px] font-bold text-foreground capitalize">{step.action}</span>
                         </div>
                         <span className="text-[9px] text-muted-foreground font-mono">{step.timestamp}</span>
@@ -574,11 +579,11 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
 
         {/* Laboratory Tab */}
         <TabsContent value="laboratory" className="mt-6">
-          <DataLaboratory 
-            uploadId={data.upload_id} 
-            columns={columns} 
-            analysis={analysis} 
-            onDataUpdateAction={onDataUpdate || (() => {})} 
+          <DataLaboratory
+            uploadId={data.upload_id}
+            columns={columns}
+            analysis={analysis}
+            onDataUpdateAction={onDataUpdate || (() => { })}
           />
         </TabsContent>
 
@@ -589,7 +594,7 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
 
         {/* Intelligence Tab */}
         <TabsContent value="intelligence" className="mt-6">
-           <PredictiveAnalytics uploadId={data.upload_id} />
+          <PredictiveAnalytics uploadId={data.upload_id} />
         </TabsContent>
       </Tabs>
     </div>

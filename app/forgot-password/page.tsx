@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -100,7 +100,7 @@ export default function ForgotPasswordPage() {
             </div>
             
             <p className="mt-10 text-[10px] text-gray-300 font-bold uppercase tracking-[0.3em]">
-                QuickCharts Secure Authentication Protocol
+                DataGraphy Secure Authentication Protocol
             </p>
         </div>
     )

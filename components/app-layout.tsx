@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { ReactNode } from 'react'
 import { BarChart3, Settings, FileText, Home } from 'lucide-react'
@@ -14,7 +14,7 @@ interface AppLayoutProps {
 
 export default function AppLayout({
   children,
-  headerTitle = 'QuickCharts',
+  headerTitle = 'DataGraphy',
   showUploadButton = false,
   onReset,
   activeSection = 'home',
@@ -102,7 +102,7 @@ export default function AppLayout({
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-sm opacity-70">
-            <p>QuickCharts • Smart Data Visualization for Everyone</p>
+            <p>DataGraphy • Smart Data Visualization for Everyone</p>
             <p className="mt-2">Powered by advanced analytics and interactive visualizations</p>
           </div>
         </div>

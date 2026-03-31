@@ -33,16 +33,20 @@ export default function DataLaboratory({ uploadId, columns, analysis, onDataUpda
     if (!newColName || !expression || !uploadId) return
     setIsCalculating(true)
     try {
+      const token = localStorage.getItem('datagraphy_token')
       const response = await axios.post(`${API_BASE_URL}/api/calculate/${uploadId}`, {
         new_column: newColName,
         expression: expression
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       })
       onDataUpdateAction(response.data)
       setNewColName('')
       setExpression('')
       toast.success("Calculated column added!")
     } catch (e: any) {
-      toast.error(`Calculation failed: ${e.response?.data?.detail || e.message}`)
+      console.error("[Formula] Error:", e.response?.data || e)
+      toast.error(e.response?.data?.detail || "Formula calculation failed. Check the syntax.")
     } finally {
       setIsCalculating(false)
     }
@@ -52,16 +56,20 @@ export default function DataLaboratory({ uploadId, columns, analysis, onDataUpda
     if (!castColumn || !castType || !uploadId) return
     setIsCasting(true)
     try {
+      const token = localStorage.getItem('datagraphy_token')
       const response = await axios.post(`${API_BASE_URL}/api/cast/${uploadId}`, {
         column: castColumn,
         target_type: castType
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       })
       onDataUpdateAction(response.data)
       setCastColumn('')
       setCastType('')
       toast.success("Data type updated!")
     } catch (e: any) {
-      toast.error(`Casting failed: ${e.response?.data?.detail || e.message}`)
+      console.error("[Cast] Error:", e.response?.data || e)
+      toast.error(e.response?.data?.detail || "Data type update failed.")
     } finally {
       setIsCasting(false)
     }
@@ -70,11 +78,15 @@ export default function DataLaboratory({ uploadId, columns, analysis, onDataUpda
   const handleSmartClean = async () => {
     setIsSmartCleaning(true)
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/smart-clean/${uploadId}`)
+      const token = localStorage.getItem('datagraphy_token')
+      const response = await axios.post(`${API_BASE_URL}/api/smart-clean/${uploadId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       onDataUpdateAction(response.data)
       toast.success("AI Smart Clean complete!")
     } catch (e: any) {
-      toast.error("AI Cleaning failed")
+      console.error("[SmartClean] Error:", e.response?.data || e)
+      toast.error(e.response?.data?.detail || "AI Cleaning failed")
     } finally {
       setIsSmartCleaning(false)
     }
@@ -83,11 +95,15 @@ export default function DataLaboratory({ uploadId, columns, analysis, onDataUpda
   const handleUndo = async () => {
     setIsUndoing(true)
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/undo/${uploadId}`)
+      const token = localStorage.getItem('datagraphy_token')
+      const response = await axios.get(`${API_BASE_URL}/api/undo/${uploadId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       onDataUpdateAction(response.data)
       toast.success("Last action reverted")
     } catch (e: any) {
-      toast.error("Nothing to undo")
+      console.error("[Undo] Error:", e.response?.data || e)
+      toast.error(e.response?.data?.detail || "Nothing to undo")
     } finally {
       setIsUndoing(false)
     }
@@ -135,17 +151,24 @@ export default function DataLaboratory({ uploadId, columns, analysis, onDataUpda
           <p className="text-sm text-muted-foreground mb-4">Create calculated columns. Click columns below to insert them.</p>
           
           <div className="flex flex-wrap gap-1.5 mb-2">
-             {columns.slice(0, 10).map(col => (
-               <Button 
-                key={col} 
-                variant="secondary" 
-                size="sm" 
-                className="h-7 text-[10px] px-2 py-0"
-                onClick={() => setExpression(prev => prev + ` \`${col}\` `)}
-               >
-                 <Plus className="w-2.5 h-2.5 mr-1" /> {col}
-               </Button>
-             ))}
+             {columns.slice(0, 15).map(col => (
+                <Button 
+                 key={col} 
+                 variant="secondary" 
+                 size="sm" 
+                 className="h-7 text-[10px] px-2 py-0 hover:bg-primary/10 hover:text-primary transition-colors"
+                 onClick={() => {
+                   setExpression(prev => {
+                     const trimmed = prev.trim()
+                     // Add an operator if the expression ends with a column or number
+                     const needsOperator = trimmed && !/[+\-*/%()]$/.test(trimmed)
+                     return prev + (needsOperator ? " + " : "") + `\`${col}\``
+                   })
+                 }}
+                >
+                  <Plus className="w-2.5 h-2.5 mr-1" /> {col}
+                </Button>
+              ))}
           </div>
 
           <div className="space-y-4">
@@ -163,9 +186,10 @@ export default function DataLaboratory({ uploadId, columns, analysis, onDataUpda
               <Input 
                 value={expression} 
                 onChange={(e) => setExpression(e.target.value)} 
-                placeholder="e.g. Revenue - Cost"
-                className="font-mono text-sm bg-muted/20"
+                placeholder="e.g. `Revenue` - `Cost`"
+                className="font-mono text-sm bg-muted/20 border-primary/20 focus-visible:ring-primary/30"
               />
+              <p className="text-[9px] text-muted-foreground italic">Use standard math operators: +, -, *, /, %</p>
             </div>
             <Button 
               className="w-full" 

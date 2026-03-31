@@ -32,9 +32,14 @@ export default function PredictiveAnalytics({ uploadId }: PredictiveAnalyticsPro
     const fetchData = async () => {
       try {
         setLoading(true)
+        const token = localStorage.getItem('datagraphy_token')
         const [prevRes, adviceRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/api/predict/${uploadId}`),
-          axios.get(`${API_BASE_URL}/api/advice/${uploadId}`)
+          axios.get(`${API_BASE_URL}/api/predict/${uploadId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          axios.get(`${API_BASE_URL}/api/advice/${uploadId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
         ])
         setPredictionData(prevRes.data)
         setAdviceData(adviceRes.data)

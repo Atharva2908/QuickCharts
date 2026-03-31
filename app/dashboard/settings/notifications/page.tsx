@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
+import Image from 'next/image'
 import axios from 'axios'
 import { API_BASE_URL } from '@/lib/constants'
 import { toast } from 'sonner'
@@ -35,7 +36,7 @@ export default function NotificationsSettingsPage() {
   }, [])
 
   const checkAuth = async () => {
-    const token = localStorage.getItem('quickcharts_token')
+    const token = localStorage.getItem('datagraphy_token')
     if (token) {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
@@ -43,7 +44,7 @@ export default function NotificationsSettingsPage() {
         })
         setUser(response.data)
       } catch (e) {
-        localStorage.removeItem('quickcharts_token')
+        localStorage.removeItem('datagraphy_token')
         router.push('/login')
       } finally {
         setIsLoading(false)
@@ -89,16 +90,20 @@ export default function NotificationsSettingsPage() {
   ]
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-slate-100 font-sans">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-slate-100 font-sans transition-colors duration-300">
       <header className="border-b border-gray-200 dark:border-slate-800 sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl border border-blue-100 dark:border-blue-800 shadow-sm">
-              <BarChart3 className="w-6 h-6" />
-            </div>
+          <Link href="/dashboard" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+            <Image
+              src="/logo.png"
+              alt="DataGraphy Logo"
+              width={36}
+              height={36}
+              className="rounded-xl shadow-sm"
+            />
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-slate-50">Quick<span className="text-blue-600 dark:text-blue-400">Charts</span></h1>
-              <p className="text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Notifications</p>
+              <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-slate-50 leading-none">Data<span className="text-blue-600 dark:text-blue-400">Graphy</span></h1>
+              <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mt-1">Notification Console</p>
             </div>
           </Link>
           <div className="flex items-center gap-4">
@@ -155,7 +160,7 @@ export default function NotificationsSettingsPage() {
                         checked={user?.notifications?.[item.id] ?? item.default} 
                         className="data-[state=checked]:bg-blue-600" 
                         onCheckedChange={async (checked) => {
-                          const token = localStorage.getItem('quickcharts_token')
+                          const token = localStorage.getItem('datagraphy_token')
                           try {
                             const newPrefs = { ...(user?.notifications || {}), [item.id]: checked }
                             await axios.put(`${API_BASE_URL}/api/auth/notifications`, {

@@ -132,9 +132,26 @@ export default function VisualizationCharts({
       .slice(0, 8)
   }, [data, selectedX, selectedY])
 
-  const downloadData = (fmt: string) => {
+  const downloadData = async (fmt: string) => {
     if (!uploadId) return toast.error("File mapping lost")
-    window.open(`${API_BASE_URL}/api/export/${uploadId}/${fmt}`, '_blank')
+    try {
+      const token = localStorage.getItem('datagraphy_token')
+      const response = await fetch(`${API_BASE_URL}/api/export/${uploadId}/${fmt}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (!response.ok) throw new Error("Export failed")
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `export_${uploadId}.${fmt === 'excel' ? 'xlsx' : 'csv'}`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (e) {
+      toast.error("Export failed. Please try again.")
+    }
   }
 
   const downloadChart = async (type: string, format: 'png' | 'jpeg' | 'pdf') => {
@@ -167,7 +184,10 @@ export default function VisualizationCharts({
     const url = `${API_BASE_URL}/chart?c=${encodeURIComponent(JSON.stringify(baseConfig))}&w=1200&h=800&f=${format}`
     
     try {
-      const response = await fetch(url)
+      const token = localStorage.getItem('datagraphy_token')
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       if (!response.ok) throw new Error("Chart service error")
       const blob = await response.blob()
       const downloadUrl = window.URL.createObjectURL(blob)
@@ -210,8 +230,11 @@ export default function VisualizationCharts({
         }
 
         try {
+            const token = localStorage.getItem('datagraphy_token')
             const url = `${API_BASE_URL}/chart?c=${encodeURIComponent(JSON.stringify(baseConfig))}&w=1200&h=800&f=png`
-            const res = await fetch(url)
+            const res = await fetch(url, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
             const blob = await res.blob()
             const imgData = await new Promise<string>((resolve) => {
                 const reader = new FileReader()
@@ -227,7 +250,7 @@ export default function VisualizationCharts({
         }
     }
     
-    pdf.save(`QuickCharts_Full_Report_${Date.now()}.pdf`)
+    pdf.save(`DataGraphy_Full_Report_${Date.now()}.pdf`)
     toast.success("Report downloaded!")
   }
 

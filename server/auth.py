@@ -65,6 +65,7 @@ class ProfileUpdateRequest(BaseModel):
     designation: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
+    profile_photo: Optional[str] = None
 
 class PasswordChangeRequest(BaseModel):
     old_password: str
@@ -261,8 +262,8 @@ async def login(request: LoginRequest, db: MongoDB = Depends(get_db)):
             detail="Incorrect email or password"
         )
     
-    # If remember me is NOT ticked, require OTP
-    if not request.remember_me:
+    # If remember me is NOT ticked OR 2FA is explicitly enabled for user, require OTP
+    if not request.remember_me or user.get("two_factor_enabled", False):
         otp = generate_otp()
         # In a real app, send this via email/SMS. Here we log it and store it in DB.
         logger.info(f"OTP for {request.email}: {otp}")
@@ -385,6 +386,8 @@ async def read_users_me(current_user: dict = Depends(get_current_user)):
         "phone": current_user.get("phone"),
         "address": current_user.get("address"),
         "designation": current_user.get("designation"),
+        "profile_photo": current_user.get("profile_photo"),
+        "two_factor_enabled": current_user.get("two_factor_enabled", False),
         "notifications": current_user.get("notifications", {}),
         "id": current_user["_id"]
     }
@@ -401,6 +404,7 @@ async def update_profile(
     if request.designation is not None: updates["designation"] = request.designation
     if request.phone is not None: updates["phone"] = request.phone
     if request.address is not None: updates["address"] = request.address
+    if request.profile_photo is not None: updates["profile_photo"] = request.profile_photo
     
     if updates:
         # Re-construct name if first/last changed
@@ -436,18 +440,45 @@ async def update_notifications(
     await db.update_user(current_user["email"], {"notifications": request.preferences})
     return {"message": "Notification preferences updated"}
 
+@router.put("/2fa")
+async def toggle_2fa(
+    current_user: dict = Depends(get_current_user),
+    db: MongoDB = Depends(get_db)
+):
+    current_status = current_user.get("two_factor_enabled", False)
+    new_status = not current_status
+    await db.update_user(current_user["email"], {"two_factor_enabled": new_status})
+    return {"enabled": new_status, "message": f"2FA {'enabled' if new_status else 'disabled'} successfully"}
+
 @router.get("/billing")
 async def get_billing_info(current_user: dict = Depends(get_current_user)):
     # Mock billing info
     return {
-        "plan": "Professional Plan",
-        "price": 19,
-        "renewal_date": "2026-04-12",
-        "storage_used": 14.2,
-        "storage_limit": 100,
-        "export_used": 6,
-        "export_limit": 50,
-        "card_brand": "VISA",
-        "card_last4": "4242",
-        "card_expiry": "12/28"
+        "plan": current_user.get("plan", "Free Plan"),
+        "price": 0 if current_user.get("plan") == "Free Plan" else 19,
+        "renewal_date": (datetime.utcnow() + timedelta(days=30)).isoformat(),
+        "storage_used": current_user.get("storage_used", 4.2),
+        "storage_limit": 100 if current_user.get("plan") == "Professional Plan" else 5,
+        "export_used": current_user.get("export_used", 2),
+        "export_limit": 50 if current_user.get("plan") == "Professional Plan" else 5,
+        "card_brand": current_user.get("card_brand", "VISA"),
+        "card_last4": current_user.get("card_last4", "4242"),
+        "card_expiry": "12/26"
     }
+
+class SubscribeRequest(BaseModel):
+    plan_name: str
+
+@router.post("/subscribe")
+async def subscribe_plan(
+    request: SubscribeRequest,
+    current_user: dict = Depends(get_current_user),
+    db: MongoDB = Depends(get_db)
+):
+    # Simulate subscription processing
+    await db.update_user(current_user["email"], {
+        "plan": request.plan_name,
+        "card_brand": "VISA",
+        "card_last4": "4242"
+    })
+    return {"message": f"Successfully subscribed to {request.plan_name}"}

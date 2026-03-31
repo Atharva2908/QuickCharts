@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
@@ -40,7 +40,7 @@ export default function HowItWorksPage() {
 
     useEffect(() => {
         const checkAuth = async () => {
-            const token = localStorage.getItem('quickcharts_token')
+            const token = localStorage.getItem('datagraphy_token')
             if (token) {
                 try {
                     const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
@@ -48,7 +48,7 @@ export default function HowItWorksPage() {
                     })
                     setUser(response.data)
                 } catch (e) {
-                    localStorage.removeItem('quickcharts_token')
+                    localStorage.removeItem('datagraphy_token')
                 }
             }
         }
@@ -64,7 +64,7 @@ export default function HowItWorksPage() {
                         <div className="p-2 bg-blue-50 text-blue-600 rounded-xl border border-blue-100">
                             <BarChart3 className="w-6 h-6" />
                         </div>
-                        <span className="text-xl font-bold tracking-tight text-gray-900">Quick<span className="text-blue-600">Charts</span></span>
+                        <span className="text-xl font-bold tracking-tight text-gray-900">Data<span className="text-blue-600">Graphy</span></span>
                     </Link>
 
                     <nav className="hidden md:flex items-center gap-8 font-medium text-sm text-gray-600">
@@ -107,7 +107,7 @@ export default function HowItWorksPage() {
                         transition={{ delay: 0.1 }}
                         className="text-xl text-gray-500 max-w-3xl mx-auto leading-relaxed"
                     >
-                        QuickCharts is the bridge between raw, messy data and professional insights. Here's exactly how our platform works.
+                        DataGraphy is the bridge between raw, messy data and professional insights. Here's exactly how our platform works.
                     </motion.p>
                 </div>
 
@@ -154,7 +154,7 @@ export default function HowItWorksPage() {
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 pointer-events-none" />
                     <h2 className="text-3xl md:text-5xl font-bold mb-6 relative z-10">Ready to try it yourself?</h2>
-                    <p className="text-slate-400 mb-10 text-lg relative z-10 max-w-xl mx-auto">Join over 10,000 data analysts who have ditched manual graphing for QuickCharts.</p>
+                    <p className="text-slate-400 mb-10 text-lg relative z-10 max-w-xl mx-auto">Join over 10,000 data analysts who have ditched manual graphing for DataGraphy.</p>
                     <Link href="/signup" className="relative z-10">
                         <Button size="lg" className="h-16 px-10 text-xl bg-blue-600 hover:bg-blue-700 rounded-full font-bold shadow-2xl shadow-blue-500/40 border-none transition-transform hover:scale-105">
                             Get Started Now <ArrowRight className="ml-2" />
@@ -166,7 +166,7 @@ export default function HowItWorksPage() {
             {/* Footer */}
             <footer className="border-t border-gray-200 bg-gray-50 mt-12">
                 <div className="max-w-7xl mx-auto px-6 py-12 text-center text-sm text-slate-500">
-                    <p>© {new Date().getFullYear()} QuickCharts. All rights reserved.</p>
+                    <p>© {new Date().getFullYear()} DataGraphy. All rights reserved.</p>
                 </div>
             </footer>
         </div>

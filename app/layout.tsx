@@ -1,16 +1,25 @@
 import React from "react"
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Outfit } from 'next/font/google'
 
 import './globals.css'
 
-const _geist = Geist({ subsets: ['latin'] })
-const _geistMono = Geist_Mono({ subsets: ['latin'] })
+const outfit = Outfit({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-outfit',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: 'QuickCharts - Data Visualization Platform',
-  description: 'Upload your data and instantly gain meaningful insights with interactive visualizations',
-  generator: 'v0.app',
+  title: 'DataGraphy - AI-Powered Data Visualization Platform',
+  description: 'Upload any CSV or Excel file and instantly generate AI-powered charts, correlations, and insights — no code required.',
+  icons: {
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+    ],
+    apple: '/favicon.png',
+  },
 }
 
 export const viewport = {
@@ -30,8 +39,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="font-sans antialiased bg-gray-50 text-gray-900 border-gray-200">
+    <html lang="en" suppressHydrationWarning className={outfit.variable}>
+      <body className="font-outfit antialiased bg-gray-50 text-gray-900 border-gray-200" style={{ fontFamily: 'var(--font-outfit), sans-serif' }}>
         <GoogleOAuthProvider clientId="639901685795-m9fanibglpjnaeebfjj4q0camicn32va.apps.googleusercontent.com">
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}

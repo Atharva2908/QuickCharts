@@ -33,7 +33,7 @@ export default function SignupPage() {
             const response = await axios.post(`${API_BASE_URL}/api/auth/google`, {
                 credential: credentialResponse.credential
             })
-            localStorage.setItem('quickcharts_token', response.data.access_token)
+            localStorage.setItem('datagraphy_token', response.data.access_token)
             router.push('/dashboard')
         } catch (err: any) {
             setError('Google login failed. Please try again.')
@@ -59,7 +59,7 @@ export default function SignupPage() {
                 password: formData.password
             })
 
-            localStorage.setItem('quickcharts_token', response.data.access_token)
+            localStorage.setItem('datagraphy_token', response.data.access_token)
             toast.success("Account created successfully!")
             router.push('/dashboard')
         } catch (err: any) {
@@ -70,20 +70,22 @@ export default function SignupPage() {
     }
 
     return (
-        <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-slate-50 font-sans selection:bg-blue-100">
+        <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-slate-50 dark:bg-slate-950 font-sans selection:bg-blue-100 dark:selection:bg-blue-900 transition-colors duration-300">
+
+
             {/* Left Column: Form */}
-            <div className="flex flex-col px-6 py-10 lg:px-20 xl:px-28 justify-between bg-white shadow-2xl z-10">
+            <div className="flex flex-col px-6 py-10 lg:px-20 xl:px-28 justify-between bg-white dark:bg-slate-900 shadow-2xl z-10 transition-colors duration-300">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 mb-8 group">
                     <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 transition-transform group-hover:scale-105">
                        <BarChart3 className="w-6 h-6 text-white" />
                     </div>
-                    <span className="text-2xl font-black tracking-tighter text-gray-900 italic">QUICK<span className="text-blue-600">CHARTS</span></span>
+                    <span className="text-2xl font-black tracking-tighter text-gray-900 dark:text-white italic">Data<span className="text-blue-600 dark:text-blue-400">Graphy</span></span>
                 </Link>
 
                 <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto py-10">
                     <div className="mb-8">
-                        <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight">Create Account</h1>
+                        <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">Create Account</h1>
                         <p className="text-gray-500 font-medium">Join us to start cleaning and automating your data.</p>
                     </div>
 
@@ -107,22 +109,22 @@ export default function SignupPage() {
                                         required
                                         value={formData.first_name}
                                         onChange={handleChange}
-                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-inner outline-none text-gray-900 font-medium"
+                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-950/50 border-0 dark:border dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-900 transition-all shadow-inner outline-none text-gray-900 dark:text-white font-medium"
                                         placeholder="John"
                                     />
                                 </div>
                             </div>
                             <div className="space-y-1.5">
                                 <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Last Name</label>
-                                <input
-                                    type="text"
-                                    name="last_name"
-                                    required
-                                    value={formData.last_name}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3.5 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-inner outline-none text-gray-900 font-medium"
-                                    placeholder="Doe"
-                                />
+                                    <input
+                                        type="text"
+                                        name="last_name"
+                                        required
+                                        value={formData.last_name}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-950/50 border-0 dark:border dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-900 transition-all shadow-inner outline-none text-gray-900 dark:text-white font-medium"
+                                        placeholder="Doe"
+                                    />
                             </div>
                         </div>
 
@@ -138,7 +140,7 @@ export default function SignupPage() {
                                     required
                                     value={formData.phone}
                                     onChange={handleChange}
-                                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-inner outline-none text-gray-900 font-medium"
+                                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-950/50 border-0 dark:border dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-900 transition-all shadow-inner outline-none text-gray-900 dark:text-white font-medium"
                                     placeholder="+1 (555) 000-0000"
                                 />
                             </div>
@@ -156,7 +158,7 @@ export default function SignupPage() {
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-inner outline-none text-gray-900 font-medium"
+                                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-950/50 border-0 dark:border dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-900 transition-all shadow-inner outline-none text-gray-900 dark:text-white font-medium"
                                     placeholder="name@company.com"
                                 />
                             </div>
@@ -176,7 +178,7 @@ export default function SignupPage() {
                                         minLength={6}
                                         value={formData.password}
                                         onChange={handleChange}
-                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-inner outline-none text-gray-900 font-medium"
+                                        className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-950/50 border-0 dark:border dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-900 transition-all shadow-inner outline-none text-gray-900 dark:text-white font-medium"
                                         placeholder="••••••••"
                                     />
                                 </div>
@@ -191,7 +193,7 @@ export default function SignupPage() {
                                         minLength={6}
                                         value={formData.confirm_password}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3.5 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-inner outline-none text-gray-900 font-medium"
+                                        className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-950/50 border-0 dark:border dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-900 transition-all shadow-inner outline-none text-gray-900 dark:text-white font-medium"
                                         placeholder="••••••••"
                                     />
                                     <button
@@ -215,9 +217,9 @@ export default function SignupPage() {
                     </form>
 
                     <div className="mt-8 flex items-center gap-4">
-                        <div className="flex-1 h-px bg-gray-100"></div>
-                        <p className="text-[10px] text-gray-300 font-black uppercase tracking-[0.2em]">OR SIGN UP WITH</p>
-                        <div className="flex-1 h-px bg-gray-100"></div>
+                        <div className="flex-1 h-px bg-gray-100 dark:bg-slate-800"></div>
+                        <p className="text-[10px] text-gray-300 dark:text-slate-600 font-black uppercase tracking-[0.2em]">OR SIGN UP WITH</p>
+                        <div className="flex-1 h-px bg-gray-100 dark:bg-slate-800"></div>
                     </div>
 
                     <div className="mt-8 flex justify-center w-full [&>div]:w-full transition-all hover:brightness-95">
@@ -237,7 +239,7 @@ export default function SignupPage() {
 
                 {/* Footer */}
                 <div className="flex items-center justify-between text-[10px] text-gray-300 font-bold uppercase tracking-widest">
-                    <p>© 2026 QUICKCHARTS LTD.</p>
+                    <p>© 2026 DataGraphy Ltd.</p>
                     <div className="flex gap-4">
                         <Link href="#" className="hover:text-blue-500 transition-colors">Terms</Link>
                         <Link href="#" className="hover:text-blue-500 transition-colors">Privacy</Link>
@@ -256,7 +258,7 @@ export default function SignupPage() {
                             REVOLUTIONIZING DATA ANALYSIS.
                         </h2>
                         <p className="text-blue-100 text-lg font-medium">
-                            Join the global community of data scientists and business analysts using QuickCharts.
+                            Join the global community of data scientists and business analysts using DataGraphy.
                         </p>
                     </div>
 

@@ -1,90 +1,31 @@
-"""
-Configuration settings for the DataViz API
-"""
-
 import os
-from typing import Optional
+import logging
+from pathlib import Path
+from dotenv import load_dotenv
 
-class Settings:
-    """Application settings"""
-    
-    # API Configuration
-    API_VERSION = "1.0.0"
-    API_TITLE = "DataViz API"
-    API_DESCRIPTION = "Data visualization and analysis API"
-    
-    # Server Configuration
-    HOST = os.getenv("HOST", "0.0.0.0")
-    PORT = int(os.getenv("PORT", 8000))
-    DEBUG = os.getenv("DEBUG", "false").lower() == "true"
-    
-    # Database Configuration
-    MONGODB_URI = os.getenv(
-        "MONGODB_URI",
-        "mongodb://localhost:27017"
-    )
-    DATABASE_NAME = "dataviz_db"
-    
-    # File Upload Configuration
-    MAX_FILE_SIZE = 100 * 1024 * 1024  # 100 MB
-    ALLOWED_EXTENSIONS = {'.csv', '.xlsx', '.xls'}
-    
-    # Data Processing Configuration
-    MAX_ROWS_PREVIEW = 50
-    MAX_CHART_POINTS = 100
-    MAX_HISTOGRAM_BINS = 20
-    
-    # Analysis Configuration
-    MIN_UNIQUE_FOR_CATEGORICAL = 20
-    OUTLIER_Z_SCORE_THRESHOLD = 3
-    CORRELATION_THRESHOLD = 0.7
-    SKEWNESS_THRESHOLD = 1.0
-    
-    # Logging Configuration
-    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-    LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    
-    # CORS Configuration
-    CORS_ORIGINS = [
-        "http://localhost:3000",
-        "http://localhost:8000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:8000",
-    ]
-    
-    # Add production URLs if available
-    PRODUCTION_ORIGINS = os.getenv("CORS_ORIGINS", "").split(",")
-    if PRODUCTION_ORIGINS and PRODUCTION_ORIGINS[0]:
-        CORS_ORIGINS.extend(PRODUCTION_ORIGINS)
-    
-    CORS_ALLOW_CREDENTIALS = True
-    CORS_ALLOW_METHODS = ["*"]
-    CORS_ALLOW_HEADERS = ["*"]
-    
-    # Feature Flags
-    ENABLE_MONGODB = os.getenv("ENABLE_MONGODB", "true").lower() == "true"
-    ENABLE_SAMPLE_DATA = os.getenv("ENABLE_SAMPLE_DATA", "true").lower() == "true"
-    ENABLE_CORRELATION_MATRIX = True
-    ENABLE_STATISTICAL_TESTS = False
-    
-    @classmethod
-    def get_mongodb_uri(cls) -> str:
-        """Get MongoDB URI"""
-        return cls.MONGODB_URI
-    
-    @classmethod
-    def is_development(cls) -> bool:
-        """Check if running in development mode"""
-        return cls.DEBUG
-    
-    @classmethod
-    def get_cors_origins(cls) -> list:
-        """Get CORS allowed origins"""
-        if cls.is_development():
-            return ["*"]
-        return cls.CORS_ORIGINS
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
+# Load environment variables
+env_path = Path(__file__).parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
-# Create settings instance
-settings = Settings()
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
+
+# Setup local storage
+UPLOAD_DIR = Path(__file__).parent / "uploads"
+HISTORY_DIR = Path(__file__).parent / "history"
+PROFILE_PHOTOS_DIR = Path(__file__).parent / "profile_photos"
+
+UPLOAD_DIR.mkdir(exist_ok=True)
+HISTORY_DIR.mkdir(exist_ok=True)
+PROFILE_PHOTOS_DIR.mkdir(exist_ok=True)
+
+if GROQ_API_KEY:
+    logger.info(f"GROQ_API_KEY found: {GROQ_API_KEY[:4]}...{GROQ_API_KEY[-4:]}")
+else:
+    logger.warning("GROQ_API_KEY NOT FOUND!")

@@ -32,7 +32,7 @@ export default function LoginPage() {
             const response = await axios.post(`${API_BASE_URL}/api/auth/google`, {
                 credential: credentialResponse.credential
             })
-            localStorage.setItem('quickcharts_token', response.data.access_token)
+            localStorage.setItem('datagraphy_token', response.data.access_token)
             router.push('/dashboard')
         } catch (err: any) {
             setError('Google login failed. Please try again.')
@@ -55,7 +55,7 @@ export default function LoginPage() {
                 setOtpRequired(true)
                 toast.success("OTP sent to your email")
             } else {
-                localStorage.setItem('quickcharts_token', response.data.access_token)
+                localStorage.setItem('datagraphy_token', response.data.access_token)
                 router.push('/dashboard')
             }
         } catch (err: any) {
@@ -77,7 +77,7 @@ export default function LoginPage() {
                 remember_me: rememberMe
             })
 
-            localStorage.setItem('quickcharts_token', response.data.access_token)
+            localStorage.setItem('datagraphy_token', response.data.access_token)
             router.push('/dashboard')
         } catch (err: any) {
             setError(err.response?.data?.detail || 'Invalid OTP')
@@ -87,21 +87,23 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-slate-50 font-sans selection:bg-blue-100">
+        <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-slate-50 dark:bg-slate-950 font-sans selection:bg-blue-100 dark:selection:bg-blue-900 transition-colors duration-300">
+
+
             {/* Left Column: Form */}
-            <div className="flex flex-col px-6 py-10 lg:px-20 xl:px-28 justify-between bg-white shadow-2xl z-10">
+            <div className="flex flex-col px-6 py-10 lg:px-20 xl:px-28 justify-between bg-white dark:bg-slate-900 shadow-2xl z-10 transition-colors duration-300">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 mb-8 group">
                     <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 transition-transform group-hover:scale-105">
                        <BarChart3 className="w-6 h-6 text-white" />
                     </div>
-                    <span className="text-2xl font-black tracking-tighter text-gray-900 italic">QUICK<span className="text-blue-600">CHARTS</span></span>
+                    <span className="text-2xl font-black tracking-tighter text-gray-900 dark:text-white italic">Data<span className="text-blue-600 dark:text-blue-400">Graphy</span></span>
                 </Link>
 
                 {/* Form Content */}
                 <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto py-10">
                     <div className="mb-10">
-                        <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight">
+                        <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">
                             {otpRequired ? "Verify Identity" : "Welcome Back"}
                         </h1>
                         <p className="text-gray-500 font-medium">
@@ -129,7 +131,7 @@ export default function LoginPage() {
                                         required
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="w-full pl-12 pr-4 py-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-inner outline-none text-gray-900 font-medium"
+                                        className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-950/50 border-0 dark:border dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-900 transition-all shadow-inner outline-none text-gray-900 dark:text-white font-medium"
                                         placeholder="name@company.com"
                                     />
                                 </div>
@@ -147,7 +149,7 @@ export default function LoginPage() {
                                         required
                                         value={formData.password}
                                         onChange={handleChange}
-                                        className="w-full pl-12 pr-14 py-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-inner outline-none text-gray-900 font-medium"
+                                        className="w-full pl-12 pr-14 py-4 bg-slate-50 dark:bg-slate-950/50 border-0 dark:border dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-900 transition-all shadow-inner outline-none text-gray-900 dark:text-white font-medium"
                                         placeholder="••••••••"
                                     />
                                     <button
@@ -173,7 +175,7 @@ export default function LoginPage() {
                                     </div>
                                     <span className="text-sm font-bold text-gray-500 group-hover:text-gray-800 transition-colors">Remember Me</span>
                                 </label>
-                                <Link href="/forgot-password" size="sm" className="text-sm font-bold text-blue-600 hover:text-blue-800 underline decoration-2 decoration-blue-100 underline-offset-4">
+                                <Link href="/forgot-password" className="text-sm font-bold text-blue-600 hover:text-blue-800 underline decoration-2 decoration-blue-100 dark:decoration-blue-900/30 underline-offset-4">
                                     Forgot Password?
                                 </Link>
                             </div>
@@ -235,9 +237,9 @@ export default function LoginPage() {
                     {!otpRequired && (
                         <>
                             <div className="mt-10 flex items-center gap-4">
-                                <div className="flex-1 h-px bg-gray-100"></div>
-                                <p className="text-[10px] text-gray-300 font-black uppercase tracking-[0.2em]">OR PROVIDER</p>
-                                <div className="flex-1 h-px bg-gray-100"></div>
+                                <div className="flex-1 h-px bg-gray-100 dark:bg-slate-800"></div>
+                                <p className="text-[10px] text-gray-300 dark:text-slate-600 font-black uppercase tracking-[0.2em]">OR PROVIDER</p>
+                                <div className="flex-1 h-px bg-gray-100 dark:bg-slate-800"></div>
                             </div>
 
                             <div className="mt-8 flex justify-center w-full [&>div]:w-full transition-all hover:brightness-95">
@@ -253,13 +255,13 @@ export default function LoginPage() {
                     )}
 
                     <p className="mt-10 text-center text-gray-400 text-sm font-medium">
-                        New to QuickCharts? <Link href="/signup" className="font-black text-blue-600 hover:text-blue-700 underline underline-offset-4 decoration-blue-100 decoration-2 transition-all">Create Account</Link>
+                        New to DataGraphy? <Link href="/signup" className="font-black text-blue-600 hover:text-blue-700 underline underline-offset-4 decoration-blue-100 decoration-2 transition-all">Create Account</Link>
                     </p>
                 </div>
 
                 {/* Footer */}
                 <div className="flex items-center justify-between text-[10px] text-gray-300 font-bold uppercase tracking-widest">
-                    <p>© 2026 QUICKCHARTS LTD.</p>
+                    <p>© 2026 DataGraphy Ltd.</p>
                     <div className="flex gap-4">
                         <Link href="#" className="hover:text-blue-500 transition-colors">Terms</Link>
                         <Link href="#" className="hover:text-blue-500 transition-colors">Privacy</Link>
@@ -278,7 +280,7 @@ export default function LoginPage() {
                             Effortlessly manage your data operations.
                         </h2>
                         <p className="text-blue-100 text-lg">
-                            Log in to access your QuickCharts dashboard, clean bad data, and extract ML insights instantly.
+                            Log in to access your DataGraphy Dashboard, clean bad data, and extract ML insights instantly.
                         </p>
                     </div>
 

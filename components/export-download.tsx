@@ -98,7 +98,10 @@ export default function ExportDownload({ data, fileName, analysis }: ExportDownl
   const exportChartImage = async (format: 'png' | 'jpeg') => {
     setIsExporting(true)
     try {
-      const response = await fetch(summaryChartUrl.replace('f=png', `f=${format}`))
+      const token = localStorage.getItem('datagraphy_token')
+      const response = await fetch(summaryChartUrl.replace('f=png', `f=${format}`), {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -123,7 +126,7 @@ export default function ExportDownload({ data, fileName, analysis }: ExportDownl
       
       doc.setFontSize(22)
       doc.setTextColor(59, 130, 246)
-      doc.text("QuickCharts Data Report", 20, 20)
+      doc.text("DataGraphy Data Report", 20, 20)
       
       doc.setFontSize(12)
       doc.setTextColor(100, 100, 100)
@@ -135,7 +138,10 @@ export default function ExportDownload({ data, fileName, analysis }: ExportDownl
       
       // Add summary chart
       try {
-        const response = await fetch(summaryChartUrl)
+        const token = localStorage.getItem('datagraphy_token')
+        const response = await fetch(summaryChartUrl, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
         const blob = await response.blob()
         const reader = new FileReader()
         const base64Data = await new Promise<string>((resolve) => {

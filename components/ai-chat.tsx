@@ -22,7 +22,7 @@ interface Message {
 
 export default function AIChat({ uploadId }: AIChatProps) {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Hi! I'm your Data Analyst AI. You can ask me questions or say 'Show me a bar chart of [column]'. I also support voice input!" }
+    { role: 'assistant', content: "Hi! I'm your DataGraphy AI. You can ask me questions or say 'Show me a bar chart of [column]'. I also support voice input!" }
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -36,7 +36,7 @@ export default function AIChat({ uploadId }: AIChatProps) {
       // First check if the API is actually responsive for TTS
       const sanitizedText = text.substring(0, 250).replace(/[#`*]/g, '')
       const audioUrl = `${API_BASE_URL}/api/tts?text=${encodeURIComponent(sanitizedText)}`
-      
+
       const audio = new Audio(audioUrl)
       audio.onerror = (e) => {
         console.error("Audio stream failed. Likely API Key issue.", e)
@@ -59,26 +59,29 @@ export default function AIChat({ uploadId }: AIChatProps) {
   const handleSend = async (overrideText?: string) => {
     const textToSend = overrideText || input
     if (!textToSend.trim() || !uploadId) return
-    
+
     setMessages(prev => [...prev, { role: 'user', content: textToSend }])
     setInput('')
     setIsLoading(true)
 
     try {
+      const token = localStorage.getItem('datagraphy_token')
       const response = await axios.post(`${API_BASE_URL}/api/chat/${uploadId}`, {
         message: textToSend
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       })
-      
+
       let chartUrl = undefined
       if (response.data.chart_config) {
         chartUrl = `${API_BASE_URL}/chart?c=${encodeURIComponent(JSON.stringify(response.data.chart_config))}&w=400&h=300`
       }
 
       const assistantMsg = response.data.response
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
+      setMessages(prev => [...prev, {
+        role: 'assistant',
         content: assistantMsg,
-        chartUrl 
+        chartUrl
       }])
 
       // Trigger voice response
@@ -118,7 +121,7 @@ export default function AIChat({ uploadId }: AIChatProps) {
             <Bot className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="font-bold text-lg leading-tight">Pro Analyst AI</h3>
+            <h3 className="font-bold text-lg leading-tight">DataGraphy AI</h3>
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <p className="text-[10px] text-blue-100 font-medium uppercase tracking-widest">Global Insights Ready</p>
@@ -126,10 +129,10 @@ export default function AIChat({ uploadId }: AIChatProps) {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-white hover:bg-white/10" 
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-white hover:bg-white/10"
             onClick={() => setIsSpeechEnabled(!isSpeechEnabled)}
           >
             {isSpeechEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5 opacity-50" />}
@@ -141,7 +144,7 @@ export default function AIChat({ uploadId }: AIChatProps) {
           </Button>
         </div>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30">
         {messages.map((msg, i) => (
           <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -150,18 +153,17 @@ export default function AIChat({ uploadId }: AIChatProps) {
                 <Bot className="w-4 h-4 text-blue-600" />
               </div>
             )}
-            <div className={`max-w-[85%] rounded-2xl px-5 py-4 text-sm shadow-md transition-all ${
-              msg.role === 'user' 
-                ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-tr-sm' 
-                : 'bg-white text-slate-800 rounded-tl-sm border border-slate-100'
-            }`}>
+            <div className={`max-w-[85%] rounded-2xl px-5 py-4 text-sm shadow-md transition-all ${msg.role === 'user'
+              ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-tr-sm'
+              : 'bg-white text-slate-800 rounded-tl-sm border border-slate-100'
+              }`}>
               <p className="leading-relaxed">{msg.content}</p>
-              
+
               {msg.chartUrl && (
                 <div className="mt-4 p-2 bg-slate-50 rounded-lg border border-slate-200 overflow-hidden">
-                   <img 
-                    src={msg.chartUrl} 
-                    alt="AI Generated Visualization" 
+                  <img
+                    src={msg.chartUrl}
+                    alt="AI Generated Visualization"
                     className="w-full h-auto rounded-md shadow-sm"
                     onLoad={() => scrollToBottom()}
                   />
@@ -185,7 +187,7 @@ export default function AIChat({ uploadId }: AIChatProps) {
 
       <div className="p-4 border-t border-border bg-white">
         <div className="flex gap-2 bg-slate-50 p-1.5 rounded-full border border-slate-200 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400 transition-all">
-          <Input 
+          <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}

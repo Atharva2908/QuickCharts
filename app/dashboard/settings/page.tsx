@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
+import Image from 'next/image'
 import axios from 'axios'
 import { API_BASE_URL } from '@/lib/constants'
 import { toast } from 'sonner'
@@ -42,13 +43,15 @@ export default function GeneralSettingsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
   const pathname = usePathname()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isUploading, setIsUploading] = useState(false)
 
   useEffect(() => {
     checkAuth()
   }, [])
 
   const checkAuth = async () => {
-    const token = localStorage.getItem('quickcharts_token')
+    const token = localStorage.getItem('datagraphy_token')
     if (token) {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
@@ -58,13 +61,13 @@ export default function GeneralSettingsPage() {
         setFormData({
           firstName: response.data.first_name || '',
           lastName: response.data.last_name || '',
-          designation: response.data.designation || 'Data Analyst',
-          phone: response.data.phone || '+1 (555) 000-0000',
-          address: response.data.address || 'San Francisco, CA',
+          designation: response.data.designation || '',
+          phone: response.data.phone || '',
+          address: response.data.address || '',
           email: response.data.email || ''
         })
       } catch (e) {
-        localStorage.removeItem('quickcharts_token')
+        localStorage.removeItem('datagraphy_token')
         router.push('/login')
       } finally {
         setIsLoading(false)
@@ -78,7 +81,7 @@ export default function GeneralSettingsPage() {
     e.preventDefault()
     setIsSaving(true)
     
-    const token = localStorage.getItem('quickcharts_token')
+    const token = localStorage.getItem('datagraphy_token')
     try {
       await axios.put(`${API_BASE_URL}/api/auth/profile`, {
         first_name: formData.firstName,
@@ -99,6 +102,31 @@ export default function GeneralSettingsPage() {
       setIsSaving(false)
     }
   }
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const token = localStorage.getItem('datagraphy_token')
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/profile-photo`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      
+      toast.success("Profile photo updated!")
+      checkAuth() // Refresh user data to get new photo URL
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Failed to upload photo")
+    } finally {
+      setIsUploading(false)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -116,16 +144,20 @@ export default function GeneralSettingsPage() {
   ]
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-slate-100 font-sans">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-slate-100 font-sans transition-colors duration-300">
       <header className="border-b border-gray-200 dark:border-slate-800 sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl border border-blue-100 dark:border-blue-800 shadow-sm">
-              <BarChart3 className="w-6 h-6" />
-            </div>
+          <Link href="/dashboard" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+            <Image
+              src="/logo.png"
+              alt="DataGraphy Logo"
+              width={36}
+              height={36}
+              className="rounded-xl shadow-sm"
+            />
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-slate-50">Quick<span className="text-blue-600 dark:text-blue-400">Charts</span></h1>
-              <p className="text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Dashboard Settings</p>
+              <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-slate-50 leading-none">Data<span className="text-blue-600 dark:text-blue-400">Graphy</span></h1>
+              <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mt-1">Settings Panel</p>
             </div>
           </Link>
           <div className="flex items-center gap-4">
@@ -162,10 +194,31 @@ export default function GeneralSettingsPage() {
             <Card className="p-6 md:p-8 bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800 shadow-sm overflow-hidden">
                 <div className="flex flex-col md:flex-row items-center gap-8 mb-10 pb-10 border-b border-gray-100 dark:border-slate-800">
                     <div className="relative group">
-                        <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-4xl font-bold border-4 border-white dark:border-slate-800 shadow-2xl transition-transform group-hover:scale-105">
-                            {user?.name?.charAt(0).toUpperCase()}
+                        <input 
+                          type="file" 
+                          ref={fileInputRef} 
+                          className="hidden" 
+                          accept="image/*"
+                          onChange={handlePhotoUpload}
+                        />
+                        <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-4xl font-bold border-4 border-white dark:border-slate-800 shadow-2xl transition-transform group-hover:scale-105 overflow-hidden">
+                            {user?.profile_photo ? (
+                              <img src={user.profile_photo} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                              user?.name?.charAt(0).toUpperCase()
+                            )}
+                            {isUploading && (
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <Loader2 className="w-8 h-8 text-white animate-spin" />
+                              </div>
+                            )}
                         </div>
-                        <button className="absolute -bottom-2 -right-2 p-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 text-blue-600 dark:text-blue-400 hover:scale-110 transition-transform">
+                        <button 
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isUploading}
+                          className="absolute -bottom-2 -right-2 p-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 text-blue-600 dark:text-blue-400 hover:scale-110 transition-transform disabled:opacity-50"
+                        >
                             <Camera className="w-5 h-5" />
                         </button>
                     </div>

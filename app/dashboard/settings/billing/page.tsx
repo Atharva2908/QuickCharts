@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
+import Image from 'next/image'
 import axios from 'axios'
 import { API_BASE_URL } from '@/lib/constants'
 import { toast } from 'sonner'
@@ -37,7 +38,7 @@ export default function BillingSettingsPage() {
   }, [])
 
   const checkAuth = async () => {
-    const token = localStorage.getItem('quickcharts_token')
+    const token = localStorage.getItem('datagraphy_token')
     if (token) {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
@@ -46,7 +47,7 @@ export default function BillingSettingsPage() {
         setUser(response.data)
         fetchBillingInfo(token)
       } catch (e) {
-        localStorage.removeItem('quickcharts_token')
+        localStorage.removeItem('datagraphy_token')
         router.push('/login')
       }
     } else {
@@ -83,16 +84,20 @@ export default function BillingSettingsPage() {
   ]
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-slate-100 font-sans">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-slate-100 font-sans transition-colors duration-300">
       <header className="border-b border-gray-200 dark:border-slate-800 sticky top-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl border border-blue-100 dark:border-blue-800 shadow-sm">
-              <BarChart3 className="w-6 h-6" />
-            </div>
+          <Link href="/dashboard" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+            <Image
+              src="/logo.png"
+              alt="DataGraphy Logo"
+              width={36}
+              height={36}
+              className="rounded-xl shadow-sm"
+            />
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-slate-50">Quick<span className="text-blue-600 dark:text-blue-400">Charts</span></h1>
-              <p className="text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Plan & Billing</p>
+              <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-slate-50 leading-none">Data<span className="text-blue-600 dark:text-blue-400">Graphy</span></h1>
+              <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mt-1">Billing Console</p>
             </div>
           </Link>
           <div className="flex items-center gap-4">
@@ -152,10 +157,10 @@ export default function BillingSettingsPage() {
                     </h4>
                     <div className="space-y-4">
                         <div className="flex justify-between text-sm">
-                            <span className="font-bold text-gray-700">{billing?.storage_used || 0} MB <span className="text-gray-400 font-normal">of {billing?.storage_limit || 0} MB used</span></span>
-                            <span className="text-blue-600 font-bold">{Math.round((billing?.storage_used / billing?.storage_limit) * 100) || 0}%</span>
+                            <span className="font-bold text-gray-700 dark:text-slate-300">{billing?.storage_used || 0} MB <span className="text-gray-400 font-normal">of {billing?.storage_limit || 0} MB used</span></span>
+                            <span className="text-blue-600 dark:text-blue-400 font-bold">{Math.round((billing?.storage_used / billing?.storage_limit) * 100) || 0}%</span>
                         </div>
-                        <Progress value={(billing?.storage_used / billing?.storage_limit) * 100 || 0} className="h-2 bg-slate-100" />
+                        <Progress value={(billing?.storage_used / billing?.storage_limit) * 100 || 0} className="h-2 bg-slate-100 dark:bg-slate-800" />
                     </div>
                 </Card>
                 <Card className="p-6 bg-white dark:bg-slate-900 border-gray-100 dark:border-slate-800 shadow-sm">
@@ -164,10 +169,10 @@ export default function BillingSettingsPage() {
                     </h4>
                     <div className="space-y-4">
                         <div className="flex justify-between text-sm">
-                            <span className="font-bold text-gray-700">{billing?.export_used || 0} <span className="text-gray-400 font-normal">of {billing?.export_limit || 0} reports this month</span></span>
-                            <span className="text-blue-600 font-bold">{Math.round((billing?.export_used / billing?.export_limit) * 100) || 0}%</span>
+                            <span className="font-bold text-gray-700 dark:text-slate-300">{billing?.export_used || 0} <span className="text-gray-400 font-normal">of {billing?.export_limit || 0} reports this month</span></span>
+                            <span className="text-blue-600 dark:text-blue-400 font-bold">{Math.round((billing?.export_used / billing?.export_limit) * 100) || 0}%</span>
                         </div>
-                        <Progress value={(billing?.export_used / billing?.export_limit) * 100 || 0} className="h-2 bg-slate-100" />
+                        <Progress value={(billing?.export_used / billing?.export_limit) * 100 || 0} className="h-2 bg-slate-100 dark:bg-slate-800" />
                     </div>
                 </Card>
             </div>
