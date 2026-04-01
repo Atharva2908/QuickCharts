@@ -162,37 +162,47 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: MongoDB = De
 
 @router.post("/register")
 async def register(user_data: UserRegister, db: MongoDB = Depends(get_db)):
-    # Check if user already exists (Case Insensitive)
-    email_lower = user_data.email.lower().strip()
-    existing_user = await db.get_user_by_email(email_lower)
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
-        )
-    
-    # Create new user
-    hashed_password = get_password_hash(user_data.password)
-    user_dict = {
-        "email": email_lower,
-        "first_name": user_data.first_name,
-        "last_name": user_data.last_name,
-        "phone": user_data.phone,
-        "name": f"{user_data.first_name} {user_data.last_name}",
-        "hashed_password": hashed_password,
-        "is_active": True
-    }
-    
-    user_id = await db.create_user(user_dict)
-    
-    # Generate token immediately after register
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user_dict["email"]}, expires_delta=access_token_expires
-    )
-    
-    return {"access_token": access_token, "token_type": "bearer", "user": {"email": user_dict["email"], "name": user_dict["name"]}}
+    try:
+        email_lower = user_data.email.lower().strip()
 
+        existing_user = await db.get_user_by_email(email_lower)
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+
+        hashed_password = get_password_hash(user_data.password)
+
+        user_dict = {
+            "email": email_lower,
+            "first_name": user_data.first_name,
+            "last_name": user_data.last_name,
+            "phone": user_data.phone,
+            "name": f"{user_data.first_name} {user_data.last_name}",
+            "hashed_password": hashed_password,
+            "is_active": True
+        }
+
+        user_id = await db.create_user(user_dict)
+
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user_dict["email"]}, expires_delta=access_token_expires
+        )
+
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": {
+                "email": user_dict["email"],
+                "name": user_dict["name"]
+            }
+        }
+
+    except Exception as e:
+        logger.error(f"REGISTER ERROR: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 @router.post("/google")
 async def google_login(data: GoogleLogin, db: MongoDB = Depends(get_db)):
     try:
