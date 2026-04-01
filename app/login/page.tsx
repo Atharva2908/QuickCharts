@@ -45,21 +45,39 @@ export default function LoginPage() {
         setError('')
 
         try {
-            const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
-                email: formData.email,
-                password: formData.password,
-                remember_me: rememberMe
-            })
+            // 🔥 Fix: Use form-data for FastAPI compatibility
+            const params = new URLSearchParams()
+            params.append('username', formData.email)  // FastAPI expects "username"
+            params.append('password', formData.password)
+            params.append('remember_me', String(rememberMe))
 
-            if (response.data.otp_required) {
+            const response = await axios.post(
+                `${API_BASE_URL}/api/auth/login`,
+                params,
+                {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    }
+                }
+            )
+
+            // ✅ Handle OTP flow
+            if (response.data?.otp_required) {
                 setOtpRequired(true)
                 toast.success("OTP sent to your email")
             } else {
                 localStorage.setItem('datagraphy_token', response.data.access_token)
                 router.push('/dashboard')
             }
+
         } catch (err: any) {
-            setError(err.response?.data?.detail || 'Login failed')
+            console.log("LOGIN ERROR:", err.response)
+
+            setError(
+                err.response?.data?.detail ||
+                err.response?.data?.message ||
+                'Invalid email or password'
+            )
         } finally {
             setIsLoading(false)
         }
@@ -71,16 +89,26 @@ export default function LoginPage() {
         setError('')
 
         try {
-            const response = await axios.post(`${API_BASE_URL}/api/auth/verify-otp`, {
-                email: formData.email,
-                otp: otp,
-                remember_me: rememberMe
-            })
+            const response = await axios.post(
+                `${API_BASE_URL}/api/auth/verify-otp`,
+                {
+                    email: formData.email,
+                    otp: otp,
+                    remember_me: rememberMe
+                }
+            )
 
             localStorage.setItem('datagraphy_token', response.data.access_token)
             router.push('/dashboard')
+
         } catch (err: any) {
-            setError(err.response?.data?.detail || 'Invalid OTP')
+            console.log("OTP ERROR:", err.response)
+
+            setError(
+                err.response?.data?.detail ||
+                err.response?.data?.message ||
+                'Invalid OTP'
+            )
         } finally {
             setIsLoading(false)
         }
@@ -95,7 +123,7 @@ export default function LoginPage() {
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 mb-8 group">
                     <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 transition-transform group-hover:scale-105">
-                       <BarChart3 className="w-6 h-6 text-white" />
+                        <BarChart3 className="w-6 h-6 text-white" />
                     </div>
                     <span className="text-2xl font-black tracking-tighter text-gray-900 dark:text-white italic">Data<span className="text-blue-600 dark:text-blue-400">Graphy</span></span>
                 </Link>
@@ -165,11 +193,11 @@ export default function LoginPage() {
                             <div className="flex items-center justify-between py-2">
                                 <label className="flex items-center gap-2 cursor-pointer group">
                                     <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${rememberMe ? 'bg-blue-600 border-blue-600' : 'bg-transparent border-gray-200'}`}>
-                                        <input 
-                                            type="checkbox" 
+                                        <input
+                                            type="checkbox"
                                             checked={rememberMe}
                                             onChange={(e) => setRememberMe(e.target.checked)}
-                                            className="hidden" 
+                                            className="hidden"
                                         />
                                         {rememberMe && <div className="w-2 h-2 bg-white rounded-full"></div>}
                                     </div>
@@ -195,7 +223,7 @@ export default function LoginPage() {
                                     {error}
                                 </div>
                             )}
-                            
+
                             <div className="flex justify-between gap-2">
                                 {[...Array(6)].map((_, i) => (
                                     <input
@@ -223,8 +251,8 @@ export default function LoginPage() {
                             >
                                 {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'VERIFY CODE'}
                             </button>
-                            
-                            <button 
+
+                            <button
                                 type="button"
                                 onClick={() => setOtpRequired(false)}
                                 className="w-full text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors"
