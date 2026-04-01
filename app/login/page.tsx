@@ -45,11 +45,11 @@ export default function LoginPage() {
         setError('')
 
         try {
-            // 🔥 Fix: Use form-data for FastAPI compatibility
             const params = new URLSearchParams()
-            params.append('username', formData.email)  // FastAPI expects "username"
+
+            // ✅ ONLY send required fields
+            params.append('username', formData.email)
             params.append('password', formData.password)
-            params.append('remember_me', String(rememberMe))
 
             const response = await axios.post(
                 `${API_BASE_URL}/api/auth/login`,
@@ -61,7 +61,7 @@ export default function LoginPage() {
                 }
             )
 
-            // ✅ Handle OTP flow
+            // ✅ If your backend supports OTP
             if (response.data?.otp_required) {
                 setOtpRequired(true)
                 toast.success("OTP sent to your email")
@@ -71,12 +71,12 @@ export default function LoginPage() {
             }
 
         } catch (err: any) {
-            console.log("LOGIN ERROR:", err.response)
+            console.log("LOGIN ERROR FULL:", err.response?.data)
 
             setError(
-                err.response?.data?.detail ||
-                err.response?.data?.message ||
-                'Invalid email or password'
+                typeof err.response?.data?.detail === "string"
+                    ? err.response.data.detail
+                    : JSON.stringify(err.response?.data?.detail) || "Login failed"
             )
         } finally {
             setIsLoading(false)
