@@ -45,19 +45,12 @@ export default function LoginPage() {
         setError('')
 
         try {
-            const params = new URLSearchParams()
-
-            // ✅ ONLY send required fields
-            params.append('username', formData.email)
-            params.append('password', formData.password)
-
             const response = await axios.post(
                 `${API_BASE_URL}/api/auth/login`,
-                params,
                 {
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    }
+                    email: formData.email,
+                    password: formData.password,
+                    remember_me: rememberMe
                 }
             )
 
