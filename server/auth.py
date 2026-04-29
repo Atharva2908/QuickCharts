@@ -226,6 +226,8 @@ async def register(user_data: UserRegister, db: MongoDB = Depends(get_db)):
             }
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"REGISTER ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
