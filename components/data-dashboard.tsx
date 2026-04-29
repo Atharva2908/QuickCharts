@@ -236,7 +236,7 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
   }
 
   return (
-    <div id="dashboard-content" className="space-y-6 bg-gray-50 p-2 sm:p-4 rounded-xl">
+    <div id="dashboard-content" className="space-y-6 bg-transparent p-2 sm:p-4 rounded-xl">
       {/* Header */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -250,16 +250,16 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
               size="sm"
               onClick={handleShare}
               disabled={isSharing}
-              className="gap-2 font-semibold bg-white border-primary/20 hover:bg-primary/5"
+              className="gap-2 font-semibold bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm"
             >
               {isSharing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4 text-emerald-600" />}
               {publicUrl ? "Link Ready" : "Share"}
             </Button>
-            <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-2 font-semibold bg-white">
+            <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-2 font-semibold bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm">
               <FileDown className="w-4 h-4 text-blue-600" />
               Report
             </Button>
-            <Button variant="outline" size="sm" onClick={handlePresentationMode} className="gap-2 font-semibold bg-white">
+            <Button variant="outline" size="sm" onClick={handlePresentationMode} className="gap-2 font-semibold bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm">
               <Maximize2 className="w-4 h-4 text-indigo-600" />
               {document.fullscreenElement ? "Exit" : "Full Screen"}
             </Button>
@@ -267,11 +267,11 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
         </div>
 
         {publicUrl && (
-          <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+          <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50 p-3 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-emerald-600" />
-              <span className="text-sm font-medium text-emerald-900">Public Link:</span>
-              <code className="text-xs bg-white px-2 py-1 rounded border border-emerald-200">{publicUrl}</code>
+              <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-sm font-medium text-emerald-900 dark:text-emerald-100">Public Link:</span>
+              <code className="text-xs bg-white dark:bg-slate-900 px-2 py-1 rounded border border-emerald-200 dark:border-emerald-800">{publicUrl}</code>
             </div>
             <Button size="sm" variant="ghost" className="text-emerald-700 h-8" onClick={() => {
               navigator.clipboard.writeText(publicUrl)
@@ -292,7 +292,7 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
 
       {/* Main Tabs */}
       <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-        <TabsList className="grid grid-cols-4 lg:grid-cols-8 w-full bg-white border border-gray-200 shadow-sm rounded-xl p-1 gap-1 h-auto select-none">
+        <TabsList className="grid grid-cols-4 lg:grid-cols-8 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl p-1 gap-1 h-auto select-none">
           <TabsTrigger value="overview" className="gap-2">
             <BarChart3 className="w-4 h-4" />
             <span className="hidden sm:inline">Overview</span>
@@ -364,7 +364,7 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
               </div>
             </Card>
 
-            <Card className="p-6 bg-white border-border/40 shadow-xl shadow-primary/5 flex flex-col items-center justify-center text-center space-y-4">
+            <Card className="p-6 bg-white dark:bg-slate-900 border-border/40 shadow-xl shadow-primary/5 flex flex-col items-center justify-center text-center space-y-4">
               <div className="relative w-32 h-32">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-3xl font-black text-primary">{Math.round((dataQuality.quality_score || 0) * 100)}%</span>
@@ -402,7 +402,7 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
 
           {/* Enhanced Metrics with Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="bg-white border-gray-200 shadow-sm p-6 relative overflow-hidden hover:shadow-md transition-shadow">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm p-6 relative overflow-hidden hover:shadow-md transition-shadow">
               <div className="absolute top-4 right-4 opacity-75">
                 <img
                   src={overviewCharts.qualityUrl}
@@ -419,7 +419,7 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
               </div>
             </Card>
 
-            <Card className="bg-white border-gray-200 shadow-sm p-6 relative overflow-hidden hover:shadow-md transition-shadow">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm p-6 relative overflow-hidden hover:shadow-md transition-shadow">
               <div className="absolute top-4 right-4 opacity-75">
                 <img
                   src={overviewCharts.missingUrl}
@@ -436,7 +436,7 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
               </div>
             </Card>
 
-            <Card className="bg-white border-gray-200 shadow-sm p-6 md:col-span-2">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm p-6 md:col-span-2">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground font-medium">Dataset Dimensions</p>
                 <div className="grid grid-cols-2 gap-4 text-center">
@@ -458,7 +458,7 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
 
         {/* Preview Tab */}
         <TabsContent value="preview" className="mt-6">
-          <Card className="bg-white border-gray-200 shadow-sm overflow-hidden rounded-xl">
+          <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden rounded-xl">
             <DataPreviewTable rows={rows} columns={columns} />
           </Card>
         </TabsContent>
@@ -508,42 +508,42 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
               analysis={analysis}
               quality={dataQuality}
             />
-            <Card className="bg-white border-border/40 shadow-sm p-6 rounded-xl flex flex-col h-full">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm p-6 rounded-xl flex flex-col h-full">
               <div className="flex items-center gap-3 mb-6">
                 <Activity className="w-5 h-5 text-blue-600" />
-                <h3 className="text-lg font-semibold text-gray-900">Interactive Data Cleaning</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Interactive Data Cleaning</h3>
               </div>
               <div className="space-y-3 flex-1">
                 <button
                   onClick={() => handleCleanData('drop_na')}
                   disabled={isCleaning}
-                  className="w-full flex justify-between items-center p-4 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all text-left group"
+                  className="w-full flex justify-between items-center p-4 border border-blue-200 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-xl transition-all text-left group"
                 >
                   <div>
-                    <div className="font-bold text-blue-900">Drop Missing Values</div>
-                    <p className="text-xs text-blue-700/80">Remove rows with any NA data</p>
+                    <div className="font-bold text-blue-900 dark:text-blue-100">Drop Missing Values</div>
+                    <p className="text-xs text-blue-700/80 dark:text-blue-300/80">Remove rows with any NA data</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-blue-400 group-hover:translate-x-1 transition-transform" />
                 </button>
                 <button
                   onClick={() => handleCleanData('fill_mean')}
                   disabled={isCleaning}
-                  className="w-full flex justify-between items-center p-4 border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all text-left group"
+                  className="w-full flex justify-between items-center p-4 border border-indigo-200 dark:border-indigo-800/50 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-xl transition-all text-left group"
                 >
                   <div className="flex-1">
-                    <div className="font-bold text-indigo-900">Fill with Mean</div>
-                    <p className="text-xs text-indigo-700/80">Replace missing numeric values with column average</p>
+                    <div className="font-bold text-indigo-900 dark:text-indigo-100">Fill with Mean</div>
+                    <p className="text-xs text-indigo-700/80 dark:text-indigo-300/80">Replace missing numeric values with column average</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-indigo-400 group-hover:translate-x-1 transition-transform" />
                 </button>
                 <button
                   onClick={() => handleCleanData('drop_duplicates')}
                   disabled={isCleaning}
-                  className="w-full flex justify-between items-center p-4 border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-all text-left group"
+                  className="w-full flex justify-between items-center p-4 border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 rounded-xl transition-all text-left group"
                 >
                   <div className="flex-1">
-                    <div className="font-bold text-emerald-900">Remove Duplicates</div>
-                    <p className="text-xs text-emerald-700/80">Drop identical overlapping rows</p>
+                    <div className="font-bold text-emerald-900 dark:text-emerald-100">Remove Duplicates</div>
+                    <p className="text-xs text-emerald-700/80 dark:text-emerald-300/80">Drop identical overlapping rows</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-1 transition-transform" />
                 </button>
@@ -560,7 +560,7 @@ export default function DataDashboard({ data, fileName, onDataUpdate }: DataDash
                     <p className="text-[10px] text-muted-foreground italic py-4 text-center">No transformations applied in this session</p>
                   ) : (
                     history.map((step) => (
-                      <div key={step.id} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-border/20">
+                      <div key={step.id} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
                         <div className="flex items-center gap-2">
                           <div className={`w-1.5 h-1.5 rounded-full ${step.status === 'success' ? 'bg-emerald-500' :
                               step.status === 'error' ? 'bg-destructive' : 'bg-primary animate-pulse'

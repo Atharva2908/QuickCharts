@@ -349,7 +349,7 @@ export default function LandingPage() {
                         initial={{ opacity: 0, y: 22 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.65, delay: 0.1 }}
-                        className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.08] text-gray-950 mb-6"
+                        className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.08] text-gray-950 dark:text-white mb-6"
                     >
                         Turn Raw Data Into
                         <br />
@@ -416,7 +416,7 @@ export default function LandingPage() {
                 </section>
 
                 {/* ── Stats Bar ── */}
-                <section className="border-y border-gray-100 bg-gradient-to-r from-slate-50 via-blue-50/30 to-indigo-50/20 py-14">
+                <section className="border-y border-gray-100 dark:border-slate-800 bg-gradient-to-r from-slate-50 via-blue-50/30 to-indigo-50/20 dark:from-slate-900 dark:via-blue-900/10 dark:to-indigo-900/10 py-14">
                     <div className="max-w-4xl mx-auto px-6">
                         <motion.div
                             initial={{ opacity: 0, y: 18 }}
@@ -426,7 +426,7 @@ export default function LandingPage() {
                         >
                             {stats.map((s, i) => (
                                 <div key={i} className="text-center">
-                                    <div className="text-4xl font-extrabold text-gray-900 tracking-tight mb-1">
+                                    <div className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-1">
                                         <AnimatedCounter target={s.value} suffix={s.suffix} />
                                     </div>
                                     <p className="text-sm text-gray-500 font-medium">{s.label}</p>
@@ -447,11 +447,11 @@ export default function LandingPage() {
                         <SectionLabel color="bg-indigo-50 text-indigo-700 border-indigo-200">
                             <Zap className="w-3.5 h-3.5" /> Everything you need
                         </SectionLabel>
-                        <h2 className="text-4xl md:text-5xl font-extrabold text-gray-950 tracking-tight mb-4">
+                        <h2 className="text-4xl md:text-5xl font-extrabold text-gray-950 dark:text-white tracking-tight mb-4">
                             Powerful features,{' '}
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">zero complexity</span>
                         </h2>
-                        <p className="text-gray-500 text-lg max-w-lg mx-auto">All the tools a data team needs, wrapped in an interface anyone can use in minutes.</p>
+                        <p className="text-gray-500 dark:text-gray-400 text-lg max-w-lg mx-auto">All the tools a data team needs, wrapped in an interface anyone can use in minutes.</p>
                     </motion.div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -460,7 +460,7 @@ export default function LandingPage() {
                 </section>
 
                 {/* ── How It Works ── */}
-                <section id="how-it-works" className="w-full bg-gradient-to-b from-gray-50 to-white py-24">
+                <section id="how-it-works" className="w-full bg-gradient-to-b from-gray-50 to-white dark:from-slate-900 dark:to-slate-950 py-24">
                     <div className="max-w-5xl mx-auto px-6">
                         <motion.div
                             initial={{ opacity: 0, y: 18 }}
@@ -471,16 +471,16 @@ export default function LandingPage() {
                             <SectionLabel color="bg-teal-50 text-teal-700 border-teal-200">
                                 <FlaskConical className="w-3.5 h-3.5" /> Simple process
                             </SectionLabel>
-                            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-950 tracking-tight mb-4">
+                            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-950 dark:text-white tracking-tight mb-4">
                                 From file to insight{' '}
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600">in 3 steps</span>
                             </h2>
-                            <p className="text-gray-500 text-lg max-w-md mx-auto">No tutorials. No setup. Just upload and go.</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-lg max-w-md mx-auto">No tutorials. No setup. Just upload and go.</p>
                         </motion.div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
                             {/* Connecting line */}
-                            <div className="hidden md:block absolute top-10 left-[calc(16.66%+40px)] right-[calc(16.66%+40px)] h-px bg-gradient-to-r from-gray-200 via-blue-200 to-gray-200" />
+                            <div className="hidden md:block absolute top-10 left-[calc(16.66%+40px)] right-[calc(16.66%+40px)] h-px bg-gradient-to-r from-gray-200 via-blue-200 to-gray-200 dark:from-slate-800 dark:via-blue-800 dark:to-slate-800" />
                             {steps.map((step, i) => (
                                 <motion.div
                                     key={i}
@@ -490,14 +490,14 @@ export default function LandingPage() {
                                     transition={{ duration: 0.5, delay: i * 0.15 }}
                                     className="relative flex flex-col items-center text-center px-4"
                                 >
-                                    <div className={`relative mb-6 w-20 h-20 rounded-2xl bg-white border-2 border-gray-100 shadow-lg flex items-center justify-center ring-4 ${step.ring}`}>
+                                    <div className={`relative mb-6 w-20 h-20 rounded-2xl bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-800 shadow-lg flex items-center justify-center ring-4 ${step.ring}`}>
                                         {step.icon}
                                         <div className="absolute -top-2.5 -right-2.5 w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-black flex items-center justify-center shadow-md shadow-blue-500/30">
                                             {i + 1}
                                         </div>
                                     </div>
-                                    <h3 className="text-base font-bold text-gray-900 mb-2">{step.title}</h3>
-                                    <p className="text-gray-500 text-sm leading-relaxed max-w-[240px]">{step.description}</p>
+                                    <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">{step.title}</h3>
+                                    <p className="text-gray-500 dark:text-slate-400 text-sm leading-relaxed max-w-[240px]">{step.description}</p>
                                 </motion.div>
                             ))}
                         </div>
@@ -515,10 +515,10 @@ export default function LandingPage() {
                         <SectionLabel color="bg-amber-50 text-amber-700 border-amber-200">
                             <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> Loved by users
                         </SectionLabel>
-                        <h2 className="text-4xl md:text-5xl font-extrabold text-gray-950 tracking-tight mb-4">
+                        <h2 className="text-4xl md:text-5xl font-extrabold text-gray-950 dark:text-white tracking-tight mb-4">
                             Don't take our word for it
                         </h2>
-                        <p className="text-gray-500 text-lg">Here's what teams say after switching to DataGraphy.</p>
+                        <p className="text-gray-500 dark:text-gray-400 text-lg">Here's what teams say after switching to DataGraphy.</p>
                     </motion.div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {testimonials.map((t) => <TestimonialCard key={t.name} {...t} />)}
@@ -573,7 +573,7 @@ export default function LandingPage() {
             </main>
 
             {/* ── Footer ── */}
-            <footer className="border-t border-gray-100 bg-gray-50/60">
+            <footer className="border-t border-gray-100 dark:border-slate-800 bg-gray-50/60 dark:bg-slate-950">
                 <div className="max-w-7xl mx-auto px-6 py-12">
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-10">
 
@@ -598,7 +598,7 @@ export default function LandingPage() {
                                     { Icon: Github, cls: 'hover:text-gray-900 hover:border-gray-400' },
                                     { Icon: Linkedin, cls: 'hover:text-blue-600 hover:border-blue-300' },
                                 ].map(({ Icon, cls }, i) => (
-                                    <a key={i} href="#" className={`w-9 h-9 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-gray-400 ${cls} transition-all`}>
+                                    <a key={i} href="#" className={`w-9 h-9 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-center justify-center text-gray-400 dark:text-gray-500 ${cls} transition-all`}>
                                         <Icon className="w-[15px] h-[15px]" />
                                     </a>
                                 ))}
@@ -612,7 +612,7 @@ export default function LandingPage() {
                             { heading: 'Legal', links: [['Privacy Policy', '#'], ['Terms of Service', '#'], ['Cookie Policy', '#'], ['Contact', '#']] },
                         ].map(({ heading, links }) => (
                             <div key={heading}>
-                                <h4 className="font-semibold text-gray-900 text-sm mb-4">{heading}</h4>
+                                <h4 className="font-semibold text-gray-900 dark:text-white text-sm mb-4">{heading}</h4>
                                 <ul className="space-y-3">
                                     {links.map(([label, href]) => (
                                         <li key={label}>
@@ -624,7 +624,7 @@ export default function LandingPage() {
                         ))}
                     </div>
 
-                    <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-gray-400">
+                    <div className="pt-8 border-t border-gray-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-gray-400 dark:text-gray-500">
                         <p>© {new Date().getFullYear()} DataGraphy. All rights reserved.</p>
                         <div className="flex items-center gap-2">
                             <span className="relative flex h-2 w-2">

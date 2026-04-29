@@ -86,7 +86,7 @@ export default function SignupPage() {
                 <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto py-10">
                     <div className="mb-8">
                         <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">Create Account</h1>
-                        <p className="text-gray-500 font-medium">Join us to start cleaning and automating your data.</p>
+                        <p className="text-gray-500 dark:text-gray-400 font-medium">Join us to start cleaning and automating your data.</p>
                     </div>
 
                     <form onSubmit={handleRegister} className="space-y-4">
@@ -98,7 +98,7 @@ export default function SignupPage() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">First Name</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">First Name</label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-500 transition-colors">
                                         <User className="h-5 w-5" />
@@ -115,7 +115,7 @@ export default function SignupPage() {
                                 </div>
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Last Name</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Last Name</label>
                                     <input
                                         type="text"
                                         name="last_name"
@@ -129,7 +129,7 @@ export default function SignupPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-500 transition-colors">
                                     <PhoneIcon className="h-5 w-5" />
@@ -147,7 +147,7 @@ export default function SignupPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-500 transition-colors">
                                     <Mail className="h-5 w-5" />
@@ -166,7 +166,7 @@ export default function SignupPage() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Password</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Password</label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-500 transition-colors">
                                         <Lock className="h-5 w-5" />
@@ -184,7 +184,7 @@ export default function SignupPage() {
                                 </div>
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Confirm</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Confirm</label>
                                 <div className="relative group">
                                     <input
                                         type={showPassword ? "text" : "password"}

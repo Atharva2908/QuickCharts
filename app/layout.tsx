@@ -40,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={outfit.variable}>
-      <body className="font-outfit antialiased bg-gray-50 text-gray-900 border-gray-200" style={{ fontFamily: 'var(--font-outfit), sans-serif' }}>
+      <body className="font-outfit antialiased bg-background text-foreground" style={{ fontFamily: 'var(--font-outfit), sans-serif' }}>
         <GoogleOAuthProvider clientId="639901685795-m9fanibglpjnaeebfjj4q0camicn32va.apps.googleusercontent.com">
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}

@@ -48,7 +48,7 @@ export default function LoginPage() {
             const response = await axios.post(
                 `${API_BASE_URL}/api/auth/login`,
                 {
-                    email: formData.email,
+                    username: formData.email,
                     password: formData.password,
                     remember_me: rememberMe
                 }
@@ -127,7 +127,7 @@ export default function LoginPage() {
                         <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">
                             {otpRequired ? "Verify Identity" : "Welcome Back"}
                         </h1>
-                        <p className="text-gray-500 font-medium">
+                        <p className="text-gray-500 dark:text-gray-400 font-medium">
                             {otpRequired ? "Enter the 6-digit code sent to your email." : "Manage your data operations with ease."}
                         </p>
                     </div>
@@ -141,7 +141,7 @@ export default function LoginPage() {
                             )}
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Work Email</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Work Email</label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-500 transition-colors">
                                         <Mail className="h-5 w-5" />
@@ -159,7 +159,7 @@ export default function LoginPage() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Password</label>
+                                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest ml-1">Password</label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-500 transition-colors">
                                         <Lock className="h-5 w-5" />
@@ -185,7 +185,7 @@ export default function LoginPage() {
 
                             <div className="flex items-center justify-between py-2">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${rememberMe ? 'bg-blue-600 border-blue-600' : 'bg-transparent border-gray-200'}`}>
+                                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${rememberMe ? 'bg-blue-600 border-blue-600' : 'bg-transparent border-gray-300 dark:border-slate-700'}`}>
                                         <input
                                             type="checkbox"
                                             checked={rememberMe}
@@ -194,7 +194,7 @@ export default function LoginPage() {
                                         />
                                         {rememberMe && <div className="w-2 h-2 bg-white rounded-full"></div>}
                                     </div>
-                                    <span className="text-sm font-bold text-gray-500 group-hover:text-gray-800 transition-colors">Remember Me</span>
+                                    <span className="text-sm font-bold text-gray-500 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">Remember Me</span>
                                 </label>
                                 <Link href="/forgot-password" className="text-sm font-bold text-blue-600 hover:text-blue-800 underline decoration-2 decoration-blue-100 dark:decoration-blue-900/30 underline-offset-4">
                                     Forgot Password?
@@ -223,7 +223,7 @@ export default function LoginPage() {
                                         key={i}
                                         type="text"
                                         maxLength={1}
-                                        className="w-12 h-14 text-center text-2xl font-black bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-xl outline-none transition-all shadow-inner"
+                                        className="w-12 h-14 text-center text-2xl font-black bg-slate-50 dark:bg-slate-950/50 border-2 border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 rounded-xl outline-none transition-all shadow-inner text-gray-900 dark:text-white"
                                         onChange={(e) => {
                                             const val = e.target.value
                                             const newOtp = otp.split('')
@@ -330,7 +330,7 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        <div className="absolute -bottom-6 -right-6 w-3/4 bg-white rounded-xl shadow-2xl p-4 text-gray-800 transform rotate-[-2deg]">
+                        <div className="absolute -bottom-6 -right-6 w-3/4 bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-4 text-gray-800 dark:text-gray-200 transform rotate-[-2deg]">
                             <div className="flex justify-between items-center mb-4">
                                 <div className="text-sm font-bold">Total Sales</div>
                                 <div className="text-xs text-gray-400 font-medium">Monthly ▼</div>
