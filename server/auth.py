@@ -167,10 +167,36 @@ async def register(user_data: UserRegister, db: MongoDB = Depends(get_db)):
 
         existing_user = await db.get_user_by_email(email_lower)
         if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered"
-            )
+            # If it's a Google-only account without a password, let them set one
+            if existing_user.get("auth_provider") == "google" and not existing_user.get("hashed_password"):
+                hashed_password = get_password_hash(user_data.password)
+                updates = {
+                    "hashed_password": hashed_password,
+                    "first_name": user_data.first_name,
+                    "last_name": user_data.last_name,
+                    "phone": user_data.phone,
+                    "name": f"{user_data.first_name} {user_data.last_name}"
+                }
+                await db.update_user(email_lower, updates)
+                
+                access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+                access_token = create_access_token(
+                    data={"sub": email_lower}, expires_delta=access_token_expires
+                )
+                
+                return {
+                    "access_token": access_token,
+                    "token_type": "bearer",
+                    "user": {
+                        "email": email_lower,
+                        "name": updates["name"]
+                    }
+                }
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Email already registered"
+                )
 
         hashed_password = get_password_hash(user_data.password)
 
